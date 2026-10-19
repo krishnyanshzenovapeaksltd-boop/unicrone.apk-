@@ -1,0 +1,175 @@
+// UNICRON+ Backend - Production Ready
+// Firebase + Flutterwave Payout Integration
+// Deploy on Render as Web Service
+
+const express = require('express');
+const cors = require('cors');
+const admin = require('firebase-admin');
+const fetch = require('node-fetch');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static('.')); // Serves index.html
+
+// --- FIREBASE ADMIN SETUP ---
+// Add your serviceAccountKey.json to Render ENV or upload file (DO NOT push to 【entity-GitHub¦canonical_name=GitHub】)
+try {
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+  console.log('✅ Firebase Connected');
+} catch (e) {
+  console.log('⚠️ Firebase not configured yet - set FIREBASE_SERVICE_ACCOUNT env on Render');
+}
+
+const db = admin.apps.length ? admin.firestore() : null;
+
+// --- FLUTTERWAVE CONFIG ---
+const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY; // Set on Render Dashboard > Environment
+const FLW_BASE_URL = 'https://api.flutterwave.com/v3';
+
+// --- ROUTES ---
+
+// 1. Home - serves index.html
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+// 2. Get all Nigerian banks (for dropdown)
+app.get('/api/banks', async (req, res) => {
+  try {
+    const response = await fetch(`${FLW_BASE_URL}/banks/NG`, {
+      headers: { 'Authorization': `Bearer ${FLW_SECRET_KEY}` }
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch banks', details: err.message });
+  }
+});
+
+// 3. Verify bank account before paying (IMPORTANT - avoids wrong payment)
+app.post('/api/verify-account', async (req, res) => {
+  const { account_number, account_bank } = req.body;
+  try {
+    const response = await fetch(`${FLW_BASE_URL}/accounts/resolve`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${FLW_SECRET_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ account_number, account_bank })
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Verification failed' });
+  }
+});
+
+// 4. Approve Installation (Store Manager / MD)
+app.post('/api/approve-install', async (req, res) => {
+  const { installId, adminName } = req.body;
+  if (!db) return res.status(500).json({ error: 'Firebase not connected' });
+
+  try {
+    await db.collection('installations').doc(installId).update({
+      status: 'approved',
+      approvedBy: adminName,
+      approvedAt: admin.firestore.FieldValue.serverTimestamp(),
+      incentiveAmount: 5000
+    });
+
+    // Add to installer wallet
+    const installDoc = await db.collection('installations').doc(installId).get();
+    const installerId = installDoc.data().installerId;
+    
+    await db.collection('installers').doc(installerId).update({
+      walletBalance: admin.firestore.FieldValue.increment(5000),
+      totalInstalls: admin.firestore.FieldValue.increment(1)
+    });
+
+    res.json({ success: true, message: 'Installation approved - ₦5K credited' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5. PAY INSTALLER - Withdrawal via Flutterwave (SECURE)
+app.post('/api/pay-installer', async (req, res) => {
+  const { installerId, amount, account_number, account_bank, beneficiary_name } = req.body;
+
+  if (!FLW_SECRET_KEY) {
+    return res.status(500).json({ error: 'FLW_SECRET_KEY not set on Render' });
+  }
+  if (amount < 10000) {
+    return res.status(400).json({ error: 'Min withdrawal is ₦10,000' });
+  }
+
+  try {
+    // Step 1: Create Transfer
+    const transferRes = await fetch(`${FLW_BASE_URL}/transfers`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${FLW_SECRET_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        account_bank: account_bank, // e.g., "044" for Access
+        account_number: account_number,
+        amount: amount,
+        currency: "NGN",
+        beneficiary_name: beneficiary_name,
+        reference: `UNICRON-${Date.now()}-${installerId.substring(0,5)}`,
+        narration: "Unicron+ Installer Incentive Payout",
+        callback_url: "https://webhook.site/unicron-callback"
+      })
+    });
+
+    const transferData = await transferRes.json();
+
+    if (transferData.status === 'success') {
+      // Step 2: Update Firestore - Mark as Paid
+      if (db) {
+        await db.collection('installers').doc(installerId).update({
+          walletBalance: admin.firestore.FieldValue.increment(-amount),
+          totalPaid: admin.firestore.FieldValue.increment(amount)
+        });
+
+        await db.collection('withdrawals').add({
+          installerId,
+          amount,
+          status: 'paid',
+          flutterwaveRef: transferData.data.id,
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+      }
+
+      res.json({ success: true, data: transferData.data, message: `₦${amount} sent to ${beneficiary_name}` });
+    } else {
+      res.status(400).json({ success: false, error: transferData.message, data: transferData });
+    }
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Transfer failed', details: err.message });
+  }
+});
+
+// 6. Get pending installations for Admin
+app.get('/api/pending-installs', async (req, res) => {
+  if (!db) return res.json([]);
+  const snapshot = await db.collection('installations').where('status', '==', 'pending').get();
+  const installs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  res.json(installs);
+});
+
+// --- START SERVER ---
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`🚀 UNICRON+ Backend running on port ${PORT}`);
+  console.log(`✅ Admin Panel: http://localhost:${PORT}`);
+  console.log(`✅ API: http://localhost:${PORT}/api/banks`);
+});
