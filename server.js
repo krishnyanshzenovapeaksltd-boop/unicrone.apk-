@@ -11,7 +11,7 @@ const fetch = require('node-fetch');
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 // --- FIREBASE ADMIN SETUP ---
 // Add your serviceAccountKey.json to Render ENV or upload file (DO NOT push to 【entity-GitHub¦canonical_name=GitHub】)
