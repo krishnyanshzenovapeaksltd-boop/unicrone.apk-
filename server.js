@@ -4,13 +4,14 @@
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const admin = require('firebase-admin');
 const fetch = require('node-fetch');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.')); // Serves index.html
+app.use(express.static(path.join(__dirname)));
 
 // --- FIREBASE ADMIN SETUP ---
 // Add your serviceAccountKey.json to Render ENV or upload file (DO NOT push to 【entity-GitHub¦canonical_name=GitHub】)
