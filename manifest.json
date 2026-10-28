@@ -1,6 +1,6 @@
 {
-  "name": "UNICRON+ Installer App",
-  "short_name": "UNICRON+",
+  "name": "UNICRON ",
+  "short_name": "UNICRON",
   "description": "Happy New Earnings!",
   "start_url": "/",
   "display": "standalone",
@@ -8,12 +8,12 @@
   "theme_color": "#dc2626",
   "icons": [
     {
-      "src": "logo.png",
+      "src": "icon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "logo.png",
+      "src": "icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
