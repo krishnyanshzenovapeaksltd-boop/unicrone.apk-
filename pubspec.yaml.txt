@@ -1,5 +1,5 @@
-name: unicron_installer
-description: Unicron+ Installer Loyalty App - Flat ₦5K per install - 2KVA to 15KW Battery
+name: unicron
+description: Unicron App - Flat ₦5K per install - 2KVA to 15KW Battery
 publish_to: 'none'
 version: 1.0.0+1
 
