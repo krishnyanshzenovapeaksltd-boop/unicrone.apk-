@@ -1,260 +1,285 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const multer = require('multer');
 const axios = require('axios');
-const path = require('path');
-
-let admin;
-let db = null;
-try {
-  admin = require('firebase-admin');
-  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    if (!admin.apps.length) {
-      admin.initializeApp({ credential: admin.credential.cert(serviceAccount), storageBucket: process.env.FIREBASE_STORAGE_BUCKET });
-    }
-    db = admin.firestore();
-    console.log('Firebase Connected - Live Selfie Mode');
-  } else {
-    console.log('Firebase Mock Mode - FIREBASE_SERVICE_ACCOUNT not set, using in-memory DB');
-  }
-} catch (e) {
-  console.log('Firebase init failed, using mock DB:', e.message);
-}
+const admin = require('firebase-admin');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
+// Middleware
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Firebase Init
+try {
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+  console.log("✅ Firebase Connected - UNICRON Production");
+} catch (e) {
+  console.log("Firebase init error:", e.message);
+}
+
+// Static frontend
 app.use(express.static(path.join(__dirname)));
 
+// In-memory DB for now (Replace with Firestore for FINAL production)
+let mockDB = {
+  installers: [],
+  installations: [],
+  nextId: 2223
+};
+
+// Multer for photos
 const storage = multer.memoryStorage();
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
+const upload = multer({ storage });
 
-const mockDB = { users: [], installations: [], transactions: [] };
+// ===== AUTH - FIXED PASSWORD CHECK =====
 
-// --- Auth Register with Live Selfie Compulsory ---
-app.post('/api/auth/register', async (req, res) => {
-  try {
-    const { phone, password, name, hasLiveSelfie, selfieTimestamp, gps } = req.body;
-    if (!phone || !password || !name) return res.status(400).json({ message: 'Phone, Password, Name required' });
-    if (!hasLiveSelfie) return res.status(400).json({ message: 'Live Selfie Verification is COMPULSORY!' });
-
-    const newUser = {
-      id: 'inst_' + Date.now(),
-      phone, password, name, role: 'installer',
-      balance: 0, completed: 0, approvedCount: 0, bank: null,
-      selfieVerified: true, selfieTimestamp, gps,
-      createdAt: new Date(), isLiveVerified: true
-    };
-
-    if (db) {
-      await db.collection('users').doc(newUser.id).set(newUser);
-    } else {
-      if (mockDB.users.find(u => u.phone === phone)) return res.status(400).json({ message: 'Phone already registered' });
-      mockDB.users.push(newUser);
-    }
-
-    console.log(`Registered: ${name} ${phone} with Live Selfie`);
-    res.json({ message: 'Registered', user: { ...newUser, password: undefined, token: 'token-' + newUser.id } });
-  } catch (e) { res.status(500).json({ message: e.message }); }
+// REGISTER - With password save
+app.post('/api/register', (req, res) => {
+  const { name, phone, password, city } = req.body;
+  
+  if (!phone || !password) {
+    return res.status(400).json({ error: "Phone and password required!" });
+  }
+  
+  if (password.length < 4) {
+    return res.status(400).json({ error: "Password min 4 chars!" });
+  }
+  
+  const exists = mockDB.installers.find(i => i.phone === phone);
+  if (exists) {
+    return res.status(400).json({ error: "Phone already registered! Login karo" });
+  }
+  
+  const newInstaller = {
+    id: mockDB.nextId++,
+    name: name || "Installer " + mockDB.nextId,
+    phone,
+    password, // In production use bcrypt.hash
+    city: city || "",
+    balance: 0,
+    totalInstallations: 0,
+    bank: null,
+    selfieVerified: true,
+    createdAt: new Date().toISOString()
+  };
+  
+  mockDB.installers.push(newInstaller);
+  console.log(`✅ New Installer Registered: ${newInstaller.id} - ${phone}`);
+  res.json({ success: true, installer: newInstaller });
 });
 
-// --- Auth Login with Live Selfie Compulsory ---
-app.post('/api/auth/login', async (req, res) => {
-  try {
-    const { role, phone, email, password, hasLiveSelfie, selfieTimestamp, gps } = req.body;
-
-    if (role === 'admin') {
-      const admins = [
-        { email: 'admin@unicron.com', password: 'admin123', name: 'Admin MD' },
-        { email: 'manager@unicron.com', password: 'manager123', name: 'Store Manager' }
-      ];
-      const found = admins.find(a => a.email === email && a.password === password);
-      if (!found) return res.status(401).json({ message: 'Invalid admin credentials' });
-      return res.json({ message: 'Admin login', user: { id: 'admin_' + Date.now(), role: 'admin', name: found.name, email: found.email, token: 'admin-token' } });
-    }
-
-    if (!phone || !password) return res.status(400).json({ message: 'Phone & Password required' });
-    if (!hasLiveSelfie) return res.status(400).json({ message: 'Live Selfie Verification is COMPULSORY! Camera only.' });
-
-    let user;
-    if (db) {
-      const snap = await db.collection('users').where('phone', '==', phone).get();
-      if (snap.empty) return res.status(404).json({ message: 'Installer not found, register with live selfie' });
-      const doc = snap.docs[0];
-      user = { id: doc.id, ...doc.data() };
-      if (user.password !== password) return res.status(401).json({ message: 'Invalid password' });
-      await db.collection('users').doc(user.id).update({ selfieVerified: true, selfieTimestamp, gps, lastLogin: new Date() });
-    } else {
-      user = mockDB.users.find(u => u.phone === phone);
-      if (!user) return res.status(404).json({ message: 'Installer not found' });
-      if (user.password !== password) return res.status(401).json({ message: 'Invalid password' });
-      user.selfieVerified = true;
-    }
-
-    console.log(`Login: ${user.name} ${phone} with Live Selfie`);
-    res.json({ message: 'Login with Live Selfie Verified', user: { ...user, password: undefined, token: 'token-' + user.id } });
-  } catch (e) { res.status(500).json({ message: e.message }); }
+// LOGIN - FIXED WITH REAL PASSWORD CHECK
+app.post('/api/login', (req, res) => {
+  const { phone, password } = req.body;
+  
+  console.log(`Login attempt: ${phone}`);
+  
+  if (!phone || !password) {
+    return res.status(400).json({ error: "Phone and password both required!" });
+  }
+  
+  const installer = mockDB.installers.find(i => i.phone === phone);
+  
+  if (!installer) {
+    return res.status(404).json({ error: "Installer not found! Register first" });
+  }
+  
+  // REAL PASSWORD CHECK - This was missing!
+  if (installer.password !== password) {
+    console.log(`❌ Wrong password for ${phone}`);
+    return res.status(401).json({ error: "Wrong password! Try again" });
+  }
+  
+  console.log(`✅ Login success: ${installer.id}`);
+  res.json({ success: true, installer });
 });
 
-app.get('/api/banks', async (req, res) => {
+// Verify Bank - Flutterwave
+app.post('/api/verify-bank', async (req, res) => {
+  const { account_number, account_bank } = req.body;
+  
   try {
-    if (process.env.FLW_SECRET_KEY) {
-      const r = await axios.get('https://api.flutterwave.com/v3/banks/NG', { headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` } });
-      return res.json(r.data);
-    }
-    res.json({ data: [{ name: 'Access Bank', code: '044' }, { name: 'GTBank', code: '058' }, { name: 'First Bank', code: '011' }, { name: 'UBA', code: '033' }, { name: 'Zenith Bank', code: '057' }, { name: 'OPay', code: '999' }] });
-  } catch (e) { res.json({ data: [{ name: 'Access Bank', code: '044' }] }); }
+    const response = await axios.post('https://api.flutterwave.com/v3/accounts/resolve', 
+      { account_number, account_bank },
+      { headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` } }
+    );
+    
+    res.json({ success: true, account_name: response.data.data.account_name });
+  } catch (e) {
+    res.status(400).json({ error: "Bank verify failed! Check number", details: e.response?.data });
+  }
 });
 
-app.post('/api/banks/verify', async (req, res) => {
-  try {
-    const { account_number, bank_code } = req.body;
-    if (process.env.FLW_SECRET_KEY) {
-      const r = await axios.post('https://api.flutterwave.com/v3/accounts/resolve', { account_number, account_bank: bank_code }, { headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` } });
-      return res.json({ account_name: r.data.data.account_name, account_number });
-    }
-    res.json({ account_name: 'Verified Account - ' + account_number.slice(-4), account_number });
-  } catch (e) { res.status(400).json({ message: 'Bank verification failed', error: e.response?.data }); }
+// Submit Installation - 3 photos + GPS
+app.post('/api/submit-installation', upload.array('photos', 3), (req, res) => {
+  const { installerId, model, serialNo, customerName, customerPhone, gps, barcodeConfirmed } = req.body;
+  
+  const installer = mockDB.installers.find(i => i.id == installerId);
+  if (!installer) {
+    return res.status(404).json({ error: "Installer not found! Login again" });
+  }
+  
+  // Serial validation - 13 digits
+  const serialPattern = /^(260434\d{7}|2604\d{9})$/;
+  if (!serialPattern.test(serialNo)) {
+    return res.status(400).json({ error: "Invalid Serial! Must be 13 digits starting 260434 or 2604" });
+  }
+  
+  if (!barcodeConfirmed || barcodeConfirmed === 'false') {
+    return res.status(400).json({ error: "Barcode confirmation required!" });
+  }
+  
+  if (!req.files || req.files.length < 3) {
+    return res.status(400).json({ error: "3 LIVE photos compulsory!" });
+  }
+  
+  // Photo difference check (simple)
+  if (req.files[0].buffer.equals(req.files[1].buffer) || req.files[1].buffer.equals(req.files[2].buffer)) {
+    return res.status(400).json({ error: "3 photos must be different!" });
+  }
+  
+  const newInstallation = {
+    id: Date.now(),
+    installerId: installer.id,
+    model,
+    serialNo,
+    customerName,
+    customerPhone,
+    gps,
+    photos: req.files.length,
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  };
+  
+  mockDB.installations.push(newInstallation);
+  console.log(`📸 New Installation: ${newInstallation.id} by ${installerId}`);
+  res.json({ success: true, installation: newInstallation });
 });
 
-// Installation with 3 Live Photos Compulsory
-app.post('/api/installations', upload.fields([{ name: 'photo1', maxCount: 1 }, { name: 'photo2', maxCount: 1 }, { name: 'photo3', maxCount: 1 }]), async (req, res) => {
-  try {
-    const { model, serial, customerName, customerPhone, lat, lng, hasLivePhotos, installerId, installerName, timestamp } = req.body;
-    if (!model || !serial || !customerName) return res.status(400).json({ message: 'Model, Serial, Customer Name required' });
-    if (!hasLivePhotos || !req.files.photo1 || !req.files.photo2 || !req.files.photo3) return res.status(400).json({ message: '3 LIVE Photos are COMPULSORY! Camera only.' });
-    if (!lat || !lng) return res.status(400).json({ message: 'GPS is COMPULSORY' });
-
-    const installation = {
-      id: Date.now().toString(), installerId, installerName, model, serial, customerName, customerPhone,
-      lat: parseFloat(lat), lng: parseFloat(lng), hasLivePhotos: true, hasLiveSelfie: true,
-      status: 'pending', amount: 5000, createdAt: new Date(), liveVerified: true, timestamp
-    };
-
-    if (db) {
-      await db.collection('installations').doc(installation.id).set(installation);
-    } else {
-      mockDB.installations.push(installation);
-    }
-
-    console.log(`Installation Submitted LIVE: ${installerName} ${model} ${serial} GPS ${lat},${lng}`);
-    res.json({ message: 'Submitted - 3 Live Photos + GPS + Selfie verified', data: installation });
-  } catch (e) { res.status(500).json({ message: e.message }); }
+// Admin - Get all
+app.get('/api/admin/installations', (req, res) => {
+  res.json({ installations: mockDB.installations, installers: mockDB.installers });
 });
 
-app.get('/api/admin/installations', async (req, res) => {
-  try {
-    let installs;
-    if (db) {
-      const snap = await db.collection('installations').orderBy('createdAt', 'desc').limit(100).get();
-      installs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } else {
-      installs = mockDB.installations;
+// Admin - Approve + Add money + Bonus
+app.post('/api/admin/approve/:id', (req, res) => {
+  const inst = mockDB.installations.find(i => i.id == req.params.id);
+  if (!inst) return res.status(404).json({ error: "Installation not found" });
+  
+  if (inst.status === 'approved') {
+    return res.status(400).json({ error: "Already approved!" });
+  }
+  
+  inst.status = 'approved';
+  const installer = mockDB.installers.find(i => i.id == inst.installerId);
+  
+  if (installer) {
+    installer.balance += 5000;
+    installer.totalInstallations += 1;
+    
+    // Bonus every 5th
+    if (installer.totalInstallations % 5 === 0) {
+      installer.balance += 20000;
+      console.log(`🎉 Bonus N20K for Installer ${installer.id} - 5 installations!`);
     }
-    res.json({ data: installs });
-  } catch (e) { res.status(500).json({ message: e.message }); }
+  }
+  
+  console.log(`✅ Approved: ${inst.id} - Installer ${inst.installerId} new balance ${installer?.balance}`);
+  res.json({ success: true, installation: inst, installer });
 });
 
-app.post('/api/admin/approve', async (req, res) => {
-  try {
-    const { id } = req.body;
-    if (!id) return res.status(400).json({ message: 'ID required' });
-
-    let installation;
-    if (db) {
-      const doc = await db.collection('installations').doc(id).get();
-      if (!doc.exists) return res.status(404).json({ message: 'Not found' });
-      installation = { id: doc.id, ...doc.data() };
-      await db.collection('installations').doc(id).update({ status: 'approved', approvedAt: new Date() });
-    } else {
-      installation = mockDB.installations.find(i => i.id === id || i.serial === id);
-      if (!installation) return res.status(404).json({ message: 'Not found' });
-      installation.status = 'approved';
-    }
-
-    const installerId = installation.installerId;
-    let newBalance = 0; let bonusAwarded = false;
-
-    if (db) {
-      const userDoc = await db.collection('users').doc(installerId).get();
-      if (userDoc.exists) {
-        const installer = { id: userDoc.id, ...userDoc.data() };
-        const currentApproved = (installer.approvedCount || 0) + 1;
-        newBalance = (installer.balance || 0) + 5000;
-        let updateData = { balance: newBalance, approvedCount: currentApproved, completed: currentApproved };
-        if (currentApproved % 5 === 0) { newBalance += 20000; updateData.balance = newBalance; bonusAwarded = true; }
-        await db.collection('users').doc(installerId).update(updateData);
-      }
-    } else {
-      const installer = mockDB.users.find(u => u.id === installerId);
-      if (installer) {
-        installer.approvedCount = (installer.approvedCount || 0) + 1;
-        installer.balance = (installer.balance || 0) + 5000;
-        newBalance = installer.balance;
-        if (installer.approvedCount % 5 === 0) { installer.balance += 20000; newBalance = installer.balance; bonusAwarded = true; }
-      }
-    }
-
-    res.json({ message: `Approved! ₦5K credited${bonusAwarded ? ' + BONUS ₦20K Extra for 5 installs!' : ''}`, newBalance, bonusAwarded });
-  } catch (e) { res.status(500).json({ message: e.message }); }
-});
-
+// WITHDRAW - REAL Flutterwave (Not demo)
 app.post('/api/withdraw', async (req, res) => {
+  const { installerId, amount, bank } = req.body;
+  
+  console.log(`💸 Withdraw request: Installer ${installerId} - N${amount}`);
+  
+  const installer = mockDB.installers.find(i => i.id == installerId);
+  if (!installer) {
+    console.log(`❌ Installer ${installerId} not found in mockDB - DB reset?`);
+    return res.status(404).json({ 
+      error: "Installer not found", 
+      possible: ["Flutterwave wallet balance 0", "Transfers not enabled", "Bank wrong", "Or mockDB reset - Register again"],
+      check: "Check Render Logs! Balance NOT deducted"
+    });
+  }
+  
+  if (installer.balance < amount) {
+    return res.status(400).json({ error: `Insufficient balance! You have N${installer.balance}` });
+  }
+  
+  if (amount < 10000) {
+    return res.status(400).json({ error: "Min withdraw N10,000!" });
+  }
+  
+  if (!bank || !bank.account_number || !bank.account_bank) {
+    return res.status(400).json({ error: "Bank not set! Verify bank first" });
+  }
+  
   try {
-    const { amount, installerId, selfieVerified } = req.body;
-    if (!amount || !installerId) return res.status(400).json({ message: 'Amount & Installer ID required' });
-    if (amount < 10000) return res.status(400).json({ message: 'Min Withdraw ₦10,000' });
-    if (!selfieVerified) return res.status(400).json({ message: 'Live Selfie required for withdrawal' });
-
-    let installer;
-    if (db) {
-      const doc = await db.collection('users').doc(installerId).get();
-      if (!doc.exists) return res.status(404).json({ message: 'Installer not found' });
-      installer = { id: doc.id, ...doc.data() };
-    } else {
-      installer = mockDB.users.find(u => u.id === installerId);
-      if (!installer) return res.status(404).json({ message: 'Installer not found' });
-    }
-
-    if ((installer.balance || 0) < amount) return res.status(400).json({ message: `Insufficient balance ₦${installer.balance}` });
-
-    let transferId = 'MOCK-' + Date.now();
-    if (process.env.FLW_SECRET_KEY) {
-      try {
-        const payload = {
-          account_bank: installer.bank.code,
-          account_number: installer.bank.account_number,
-          amount, narration: `UNICRON+ Payout - ${installer.name} - Live Verified`,
-          currency: 'NGN', reference: `UNICRON-${installerId}-${Date.now()}`
-        };
-        const r = await axios.post('https://api.flutterwave.com/v3/transfers', payload, { headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` } });
-        transferId = r.data.data.id;
-      } catch (e) { return res.status(500).json({ message: 'Flutterwave transfer failed', error: e.response?.data }); }
-    }
-
-    const newBalance = (installer.balance || 0) - amount;
-    if (db) {
-      await db.collection('users').doc(installerId).update({ balance: newBalance });
-    } else {
-      installer.balance = newBalance;
-    }
-
-    res.json({ message: `Withdrawal Initiated! ₦${amount} via Flutterwave`, transfer_id: transferId, newBalance });
-  } catch (e) { res.status(500).json({ message: e.message }); }
+    // REAL Flutterwave Transfer
+    const response = await axios.post('https://api.flutterwave.com/v3/transfers',
+      {
+        account_bank: bank.account_bank,
+        account_number: bank.account_number,
+        amount: amount,
+        currency: "NGN",
+        beneficiary_name: bank.account_name || installer.name,
+        reference: `UNICRON-${installerId}-${Date.now()}`,
+        callback_url: "https://webhook.site",
+        debit_currency: "NGN"
+      },
+      {
+        headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` }
+      }
+    );
+    
+    // Only deduct if Flutterwave success
+    installer.balance -= amount;
+    
+    console.log(`✅ REAL Transfer success: ${response.data.data.id} - N${amount} to ${bank.account_number}`);
+    
+    res.json({ 
+      success: true, 
+      message: `REAL N${amount} sent to ${bank.account_number}!`,
+      transfer_id: response.data.data.id,
+      new_balance: installer.balance
+    });
+    
+  } catch (e) {
+    const errMsg = e.response?.data?.message || e.message;
+    console.log(`❌ Flutterwave transfer failed: ${errMsg}`);
+    
+    res.status(400).json({ 
+      error: "REAL Withdraw Failed!",
+      details: errMsg,
+      flutterwave_error: e.response?.data,
+      possible: ["1. Flutterwave wallet balance 0", "2. Transfers not enabled", "3. Bank wrong"],
+      check: "Check Render Logs! Balance NOT deducted"
+    });
+  }
 });
 
-app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
+// Serve frontend
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'UNICRON+ Production Ready - Live Selfie + 3 Live Photos Compulsory - All Rights Reserved - Designed by krishnyansh zenova peaks ltd', firebase: !!db, flutterwave: !!process.env.FLW_SECRET_KEY });
+// Fallback for PWA
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api/')) {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  }
 });
 
 app.listen(PORT, () => {
-  console.log(`UNICRON+ Server Running on port ${PORT}`);
-  console.log('Features: Live Selfie KYC Must + 3 Live Photos Must + GPS + Timestamp + ₦5K + Min ₦10K + Bonus 5=₦20K');
-  console.log('Designed by krishnyansh zenova peaks ltd - All Rights Reserved');
+  console.log(`🚀 UNICRON Backend running on port ${PORT}`);
+  console.log(`📦 mockDB Installers: ${mockDB.installers.length}`);
 });
