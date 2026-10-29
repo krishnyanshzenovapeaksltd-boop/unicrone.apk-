@@ -1,7 +1,7 @@
 {
-  "name": "unicron-installer-app",
+  "name": "unicron",
   "version": "1.0.0",
-  "description": "UNICRON+ Installer Loyalty Portal - Live Selfie + 3 Live Photos Compulsory - Designed by krishnyansh zenova peaks ltd - All Rights Reserved",
+  "description": "UNICRON Portal - Live Selfie + 3 Live Photos Compulsory - Designed by krishnyansh zenova peaks ltd - All Rights Reserved",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
