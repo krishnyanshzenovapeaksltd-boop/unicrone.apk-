@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
-const 【entity-axios¦canonical_name=axios】 = require('【entity-axios¦canonical_name=axios】');
+const axiosLib = require('axios');
 const admin = require('firebase-admin');
 const bcrypt = require('bcryptjs');
 
@@ -13,7 +13,6 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// ===== FIREBASE FIRESTORE - PRODUCTION DB =====
 let db;
 try {
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -21,19 +20,14 @@ try {
     credential: admin.credential.cert(serviceAccount)
   });
   db = admin.firestore();
-  console.log("✅ Firebase Firestore Connected - UNICRON Production DB");
+  console.log("✅ Firebase Firestore Connected - UNICRON Production");
 } catch (e) {
-  console.log("❌ Firebase init error:", e.message);
-  console.log("Using mockDB fallback - NOT for production!");
+  console.log("Firebase init error:", e.message);
 }
 
 const storage = multer.memoryStorage();
-const upload = multer({ 
-  storage,
-  limits: { fileSize: 8 * 1024 * 1024 } // 8MB per photo max
-});
+const upload = multer({ storage, limits: { fileSize: 8 * 1024 * 1024 } });
 
-// Helper: Get Next ID safely
 async function getNextId() {
   if (!db) return Date.now();
   const counterRef = db.collection('counters').doc('installer');
@@ -42,223 +36,122 @@ async function getNextId() {
       const doc = await t.get(counterRef);
       let next = 2223;
       if (doc.exists) next = (doc.data().nextId || 2223) + 1;
-      else next = 2223;
       t.set(counterRef, { nextId: next }, { merge: true });
       return next;
     });
     return newId;
-  } catch (e) {
-    return Date.now();
-  }
+  } catch (e) { return Date.now(); }
 }
 
-// ===== REGISTER - FIRESTORE =====
 app.post('/api/register', async (req, res) => {
   const { name, phone, password, city } = req.body;
   if (!phone || !password) return res.status(400).json({ error: "Phone and password required!" });
   if (password.length < 4) return res.status(400).json({ error: "Password min 4 chars!" });
-
   try {
     if (db) {
       const snap = await db.collection('installers').where('phone', '==', phone).limit(1).get();
       if (!snap.empty) return res.status(400).json({ error: "Phone already registered! Login karo" });
     }
-
     const hashedPassword = await bcrypt.hash(password, 10);
     const id = await getNextId();
-
     const newInstaller = {
-      id,
-      name: name || "Installer " + id,
-      phone,
-      password: hashedPassword,
-      city: city || "",
-      balance: 0,
-      totalInstallations: 0,
-      bank: null,
-      selfieVerified: true,
-      createdAt: new Date().toISOString()
+      id, name: name || "Installer " + id, phone, password: hashedPassword,
+      city: city || "", balance: 0, totalInstallations: 0, bank: null,
+      selfieVerified: true, createdAt: new Date().toISOString()
     };
-
     if (db) await db.collection('installers').doc(String(id)).set(newInstaller);
-    
-    console.log(`✅ REGISTERED: ${id} - ${phone}`);
-    // Don't send password back
-    const { password: _, ...safeInstaller } = newInstaller;
-    res.json({ success: true, installer: { ...safeInstaller, password: undefined } });
-
-  } catch (e) {
-    console.log("Register error:", e.message);
-    res.status(500).json({ error: "Register failed: " + e.message });
-  }
+    console.log("REGISTERED: " + id + " - " + phone);
+    const { password: _, ...safe } = newInstaller;
+    res.json({ success: true, installer: safe });
+  } catch (e) { res.status(500).json({ error: "Register failed: " + e.message }); }
 });
 
-// ===== LOGIN - REAL CHECK + BCRYPT =====
 app.post('/api/login', async (req, res) => {
   const { phone, password } = req.body;
   if (!phone || !password) return res.status(400).json({ error: "Phone and password both required!" });
-
   try {
-    let installer = null;
-    if (db) {
-      const snap = await db.collection('installers').where('phone', '==', phone).limit(1).get();
-      if (snap.empty) return res.status(404).json({ error: "Installer not found! Register first" });
-      installer = snap.docs[0].data();
-    } else {
-      return res.status(500).json({ error: "DB not connected" });
-    }
-
+    if (!db) return res.status(500).json({ error: "DB not connected" });
+    const snap = await db.collection('installers').where('phone', '==', phone).limit(1).get();
+    if (snap.empty) return res.status(404).json({ error: "Installer not found! Register first" });
+    const installer = snap.docs[0].data();
     const ok = await bcrypt.compare(password, installer.password);
-    if (!ok) {
-      console.log(`❌ Wrong password for ${phone}`);
-      return res.status(401).json({ error: "Wrong password! Try again" });
-    }
-
-    console.log(`✅ LOGIN: ${installer.id}`);
+    if (!ok) return res.status(401).json({ error: "Wrong password! Try again" });
     const { password: _, ...safe } = installer;
     res.json({ success: true, installer: safe });
-
-  } catch (e) {
-    res.status(500).json({ error: "Login failed" });
-  }
+  } catch (e) { res.status(500).json({ error: "Login failed" }); }
 });
 
-// ===== VERIFY BANK =====
 app.post('/api/verify-bank', async (req, res) => {
   const { account_number, account_bank } = req.body;
   try {
-    const response = await axios.post('https://api.flutterwave.com/v3/accounts/resolve',
+    const response = await axiosLib.post('https://api.flutterwave.com/v3/accounts/resolve',
       { account_number, account_bank },
-      { headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` } }
+      { headers: { Authorization: "Bearer " + process.env.FLW_SECRET_KEY } }
     );
     res.json({ success: true, account_name: response.data.data.account_name });
-  } catch (e) {
-    res.status(400).json({ error: "Bank verify failed!", details: e.response?.data?.message });
-  }
+  } catch (e) { res.status(400).json({ error: "Bank verify failed!", details: e.response?.data?.message }); }
 });
 
-// ===== SUBMIT INSTALLATION - FIRESTORE =====
 app.post('/api/submit-installation', upload.array('photos', 3), async (req, res) => {
   const { installerId, model, serialNo, customerName, customerPhone, gps, barcodeConfirmed } = req.body;
-  
   const serialPattern = /^(260434\d{7}|2604\d{9})$/;
   if (!serialPattern.test(serialNo)) return res.status(400).json({ error: "Invalid Serial! 13 digits" });
   if (!barcodeConfirmed || barcodeConfirmed === 'false') return res.status(400).json({ error: "Barcode confirmation required!" });
   if (!req.files || req.files.length < 3) return res.status(400).json({ error: "3 LIVE photos compulsory!" });
-
   try {
     if (db) {
       const doc = await db.collection('installers').doc(String(installerId)).get();
       if (!doc.exists) return res.status(404).json({ error: "Installer not found! Login again" });
     }
-
-    // Save photos as base64 in Firestore (for admin verification) - compressed
-    const photoMeta = req.files.map((f, i) => ({
-      index: i,
-      size: f.size,
-      mimetype: f.mimetype,
-      // Don't save full buffer in main doc to avoid 1MB limit, save reference
-      // For production use Firebase Storage, here we save small preview
-      hasPhoto: true
-    }));
-
     const newInstallation = {
-      id: Date.now(),
-      installerId: Number(installerId),
-      model,
-      serialNo,
-      customerName,
-      customerPhone,
-      gps: gps || "",
-      photos: photoMeta.length,
-      photoMeta,
-      status: 'pending',
-      createdAt: new Date().toISOString()
+      id: Date.now(), installerId: Number(installerId), model, serialNo,
+      customerName, customerPhone, gps: gps || "", photos: req.files.length,
+      status: 'pending', createdAt: new Date().toISOString()
     };
-
     if (db) await db.collection('installations').doc(String(newInstallation.id)).set(newInstallation);
-
-    console.log(`📸 Installation: ${newInstallation.id} by ${installerId}`);
     res.json({ success: true, installation: newInstallation });
-
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ error: "Submit failed: " + e.message });
-  }
+  } catch (e) { res.status(500).json({ error: "Submit failed: " + e.message }); }
 });
 
-// ===== BANKS - 50+ BANKS - NEVER FAILS =====
 app.get('/api/banks', async (req, res) => {
   try {
-    const response = await axios.get('https://api.flutterwave.com/v3/banks/NG', {
-      headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` },
-      timeout: 8000
+    const response = await axiosLib.get('https://api.flutterwave.com/v3/banks/NG', {
+      headers: { Authorization: "Bearer " + process.env.FLW_SECRET_KEY }, timeout: 8000
     });
-    if (response.data.data && response.data.data.length > 10) {
-      console.log(`✅ Live Banks: ${response.data.data.length}`);
-      return res.json(response.data.data);
-    }
+    if (response.data.data && response.data.data.length > 10) return res.json(response.data.data);
     throw new Error("Less banks");
   } catch (e) {
-    console.log("Using fallback 50+ banks");
     res.json([
-      { id: 1, code: "044", name: "【entity-Access Bank¦canonical_name=Access Bank】" },
-      { id: 2, code: "063", name: "【entity-Access Bank¦canonical_name=Access Bank】 (Diamond)" },
-      { id: 3, code: "050", name: "【entity-Ecobank Nigeria¦canonical_name=Ecobank Nigeria】" },
-      { id: 4, code: "070", name: "【entity-Fidelity Bank¦canonical_name=Fidelity Bank】" },
-      { id: 5, code: "011", name: "First Bank of Nigeria" },
-      { id: 6, code: "214", name: "First City Monument Bank" },
-      { id: 7, code: "058", name: "Guaranty Trust Bank" },
-      { id: 8, code: "030", name: "Heritage Bank" },
-      { id: 9, code: "082", name: "Keystone Bank" },
-      { id: 10, code: "076", name: "Polaris Bank" },
-      { id: 11, code: "221", name: "Stanbic IBTC Bank" },
-      { id: 12, code: "068", name: "Standard Chartered Bank" },
-      { id: 13, code: "232", name: "Sterling Bank" },
-      { id: 14, code: "032", name: "Union Bank" },
-      { id: 15, code: "033", name: "【entity-United Bank for Africa¦canonical_name=United Bank for Africa】" },
-      { id: 16, code: "215", name: "Unity Bank" },
-      { id: 17, code: "035", name: "【entity-Wema Bank¦canonical_name=Wema Bank】" },
-      { id: 18, code: "057", name: "【entity-Zenith Bank¦canonical_name=Zenith Bank】" },
-      { id: 19, code: "301", name: "Jaiz Bank" },
-      { id: 20, code: "023", name: "Citibank Nigeria" },
-      { id: 21, code: "052", name: "Providus Bank" },
-      { id: 22, code: "032", name: "Suntrust Bank" },
-      { id: 23, code: "050", name: "Titan Trust Bank" },
-      { id: 24, code: "221", name: "Globus Bank" },
-      { id: 25, code: "076", name: "Parallex Bank" },
-      { id: 26, code: "101", name: "Providus Bank" },
-      { id: 27, code: "100", name: "Kuda Bank" },
-      { id: 28, code: "999", name: "【entity-OPay¦canonical_name=OPay】" },
-      { id: 29, code: "999", name: "Palmpay" },
-      { id: 30, code: "999", name: "【entity-Moniepoint MFB¦canonical_name=Moniepoint MFB】" },
-      { id: 31, code: "035", name: "Paga" },
-      { id: 32, code: "999", name: "Carbon" },
-      { id: 33, code: "035", name: "Rubies MFB" },
-      { id: 34, code: "999", name: "VFD Microfinance Bank" },
-      { id: 35, code: "035", name: "Kuda MFB" },
-      { id: 36, code: "999", name: "FairMoney" },
-      { id: 37, code: "035", name: "Sparkle Bank" },
-      { id: 38, code: "999", name: "ALAT by WEMA" },
-      { id: 39, code: "058", name: "GTBank" },
-      { id: 40, code: "011", name: "First Bank" },
-      { id: 41, code: "057", name: "【entity-Zenith Bank¦canonical_name=Zenith Bank】" },
-      { id: 42, code: "033", name: "UBA" },
-      { id: 43, code: "044", name: "【entity-Access Bank¦canonical_name=Access Bank】" },
-      { id: 44, code: "070", name: "Fidelity" },
-      { id: 45, code: "035", name: "【entity-Wema Bank¦canonical_name=Wema Bank】" },
-      { id: 46, code: "999", name: "【entity-Chipper Cash¦canonical_name=Chipper Cash】" },
-      { id: 47, code: "999", name: "Eyowo" },
-      { id: 48, code: "999", name: "GoMoney" },
-      { id: 49, code: "035", name: "Mint MFB" },
-      { id: 50, code: "999", name: "Alerzo MFB" },
-      { id: 51, code: "999", name: "Lotus Bank" },
-      { id: 52, code: "999", name: "PremiumTrust Bank" }
+      { id: 1, code: "044", name: "Access Bank" }, { id: 2, code: "063", name: "Access Bank (Diamond)" },
+      { id: 3, code: "050", name: "Ecobank Nigeria" }, { id: 4, code: "070", name: "Fidelity Bank" },
+      { id: 5, code: "011", name: "First Bank of Nigeria" }, { id: 6, code: "214", name: "First City Monument Bank" },
+      { id: 7, code: "058", name: "Guaranty Trust Bank" }, { id: 8, code: "030", name: "Heritage Bank" },
+      { id: 9, code: "082", name: "Keystone Bank" }, { id: 10, code: "076", name: "Polaris Bank" },
+      { id: 11, code: "221", name: "Stanbic IBTC Bank" }, { id: 12, code: "068", name: "Standard Chartered Bank" },
+      { id: 13, code: "232", name: "Sterling Bank" }, { id: 14, code: "032", name: "Union Bank" },
+      { id: 15, code: "033", name: "United Bank for Africa" }, { id: 16, code: "215", name: "Unity Bank" },
+      { id: 17, code: "035", name: "Wema Bank" }, { id: 18, code: "057", name: "Zenith Bank" },
+      { id: 19, code: "301", name: "Jaiz Bank" }, { id: 20, code: "023", name: "Citibank Nigeria" },
+      { id: 21, code: "052", name: "Providus Bank" }, { id: 22, code: "100", name: "Kuda Bank" },
+      { id: 23, code: "999", name: "OPay" }, { id: 24, code: "999", name: "Palmpay" },
+      { id: 25, code: "999", name: "Moniepoint MFB" }, { id: 26, code: "035", name: "Paga" },
+      { id: 27, code: "999", name: "Carbon" }, { id: 28, code: "035", name: "Rubies MFB" },
+      { id: 29, code: "999", name: "VFD Microfinance Bank" }, { id: 30, code: "035", name: "ALAT by WEMA" },
+      { id: 31, code: "058", name: "GTBank" }, { id: 32, code: "011", name: "First Bank" },
+      { id: 33, code: "999", name: "FairMoney" }, { id: 34, code: "999", name: "Chipper Cash" },
+      { id: 35, code: "999", name: "Lotus Bank" }, { id: 36, code: "999", name: "PremiumTrust Bank" },
+      { id: 37, code: "999", name: "Eyowo" }, { id: 38, code: "999", name: "GoMoney" },
+      { id: 39, code: "999", name: "Sparkle Bank" }, { id: 40, code: "035", name: "Mint MFB" },
+      { id: 41, code: "999", name: "Alerzo MFB" }, { id: 42, code: "999", name: "Suntrust Bank" },
+      { id: 43, code: "050", name: "Titan Trust Bank" }, { id: 44, code: "221", name: "Globus Bank" },
+      { id: 45, code: "076", name: "Parallex Bank" }, { id: 46, code: "101", name: "Providus Bank" },
+      { id: 47, code: "999", name: "PremiumTrust" }, { id: 48, code: "044", name: "Access Bank" },
+      { id: 49, code: "070", name: "Fidelity" }, { id: 50, code: "033", name: "UBA" },
+      { id: 51, code: "057", name: "Zenith" }, { id: 52, code: "999", name: "Opay MFB" }
     ]);
   }
 });
 
-// ===== ADMIN GET ALL - FIRESTORE =====
 app.get('/api/admin/installations', async (req, res) => {
   try {
     if (!db) return res.json({ installations: [], installers: [] });
@@ -267,114 +160,65 @@ app.get('/api/admin/installations', async (req, res) => {
       db.collection('installers').limit(500).get()
     ]);
     const installations = instSnap.docs.map(d => d.data());
-    const installers = installerSnap.docs.map(d => {
-      const { password, ...safe } = d.data();
-      return safe;
-    });
+    const installers = installerSnap.docs.map(d => { const { password, ...safe } = d.data(); return safe; });
     res.json({ installations, installers });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ===== ADMIN APPROVE - REAL BALANCE ADD =====
 app.post('/api/admin/approve/:id', async (req, res) => {
   try {
     const id = String(req.params.id);
     const instRef = db.collection('installations').doc(id);
     const instDoc = await instRef.get();
     if (!instDoc.exists) return res.status(404).json({ error: "Installation not found" });
-    
     const inst = instDoc.data();
     if (inst.status === 'approved') return res.status(400).json({ error: "Already approved!" });
-
     const installerRef = db.collection('installers').doc(String(inst.installerId));
     const installerDoc = await installerRef.get();
     if (!installerDoc.exists) return res.status(404).json({ error: "Installer not found" });
-
     const installer = installerDoc.data();
     let newBalance = (installer.balance || 0) + 5000;
     let newTotal = (installer.totalInstallations || 0) + 1;
     let bonus = 0;
-
-    if (newTotal % 5 === 0) {
-      bonus = 20000;
-      newBalance += bonus;
-    }
-
+    if (newTotal % 5 === 0) { bonus = 20000; newBalance += bonus; }
     await db.runTransaction(async (t) => {
       t.update(instRef, { status: 'approved', approvedAt: new Date().toISOString() });
       t.update(installerRef, { balance: newBalance, totalInstallations: newTotal });
     });
-
-    console.log(`✅ APPROVED: ${id} - Installer ${inst.installerId} Bal N${newBalance} ${bonus?'+BONUS':''}`);
-    
-    res.json({ 
-      success: true, 
-      installation: { ...inst, status: 'approved' },
-      installer: { id: installer.id, balance: newBalance, totalInstallations: newTotal, bonus }
-    });
-
-  } catch (e) {
-    console.log("Approve error:", e.message);
-    res.status(500).json({ error: e.message });
-  }
+    res.json({ success: true, installation: { ...inst, status: 'approved' }, installer: { id: installer.id, balance: newBalance, totalInstallations: newTotal, bonus } });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ===== WITHDRAW - REAL FLUTTERWAVE + FIRESTORE =====
 app.post('/api/withdraw', async (req, res) => {
   const { installerId, amount, bank } = req.body;
-  console.log(`💸 Withdraw: ${installerId} - N${amount}`);
-
   if (!db) return res.status(500).json({ error: "DB not connected" });
   if (!bank?.account_number || !bank?.account_bank) return res.status(400).json({ error: "Bank not set!" });
-
   try {
     const installerRef = db.collection('installers').doc(String(installerId));
     const doc = await installerRef.get();
     if (!doc.exists) return res.status(404).json({ error: "Installer not found - Register again" });
-    
     const installer = doc.data();
-    if ((installer.balance || 0) < amount) return res.status(400).json({ error: `Insufficient! You have N${installer.balance}` });
+    if ((installer.balance || 0) < amount) return res.status(400).json({ error: "Insufficient! You have N" + installer.balance });
     if (amount < 10000) return res.status(400).json({ error: "Min withdraw N10,000!" });
-
-    // REAL Flutterwave
-    const response = await axios.post('https://api.flutterwave.com/v3/transfers',
+    const response = await axiosLib.post('https://api.flutterwave.com/v3/transfers',
       {
-        account_bank: bank.account_bank,
-        account_number: bank.account_number,
-        amount,
-        currency: "NGN",
-        beneficiary_name: bank.account_name || installer.name,
-        reference: `UNICRON-${installerId}-${Date.now()}`,
-        debit_currency: "NGN"
+        account_bank: bank.account_bank, account_number: bank.account_number,
+        amount, currency: "NGN", beneficiary_name: bank.account_name || installer.name,
+        reference: "UNICRON-" + installerId + "-" + Date.now(), debit_currency: "NGN"
       },
-      { headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` } }
+      { headers: { Authorization: "Bearer " + process.env.FLW_SECRET_KEY } }
     );
-
-    // Deduct only after success
     const newBalance = installer.balance - amount;
     await installerRef.update({ balance: newBalance });
-
-    console.log(`✅ TRANSFER: N${amount} to ${bank.account_number}`);
-    res.json({ success: true, message: `REAL N${amount} sent!`, transfer_id: response.data.data.id, new_balance: newBalance });
-
+    res.json({ success: true, message: "REAL N" + amount + " sent!", transfer_id: response.data.data.id, new_balance: newBalance });
   } catch (e) {
     const errMsg = e.response?.data?.message || e.message;
-    console.log(`❌ Withdraw failed: ${errMsg}`, e.response?.data);
-    res.status(400).json({ 
-      error: "Withdraw Failed!",
-      details: errMsg,
-      flutterwave_error: e.response?.data,
-      possible: ["1. Wallet balance 0", "2. Transfers not enabled", "3. Bank wrong"]
-    });
+    res.status(400).json({ error: "Withdraw Failed!", details: errMsg, flutterwave_error: e.response?.data });
   }
 });
 
 app.use(express.static(path.join(__dirname)));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api/')) res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.get('*', (req, res) => { if (!req.path.startsWith('/api/')) res.sendFile(path.join(__dirname, 'index.html')); });
 
-app.listen(PORT, () => console.log(`🚀 UNICRON PRODUCTION on ${PORT} - 500+ users ready`));
+app.listen(PORT, () => console.log("🚀 UNICRON PRODUCTION on " + PORT + " - 500+ users ready")
