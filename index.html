@@ -24,7 +24,6 @@
 </head>
 <body class="antialiased">
 
-<!-- LIVE CAMERA MODAL - SELFIE + 3 PHOTOS COMPULSORY -->
 <div id="cameraModal">
   <p id="camTitle" class="text-white font-black text-[20px] mb-2 text-center">LIVE Selfie Verification - COMPULSORY</p>
   <p id="camSub" class="text-white/60 text-[12px] mb-4 text-center max-w-[340px]">Look straight • Good light • No cap • Face must be visible • GPS + Timestamp will be added automatically • Gallery upload BLOCKED</p>
@@ -41,14 +40,12 @@
   <p class="text-white/40 text-[10px] mt-3 text-center">Compulsory: Selfie for login + 3 photos for each installation<br>Timestamp + GPS watermark auto added</p>
 </div>
 
-<!-- HEADER WITH LOGIN/LOGOUT -->
 <header class="bg-white border-b border-black/5 sticky top-0 z-50 backdrop-blur-md">
   <div class="max-w-7xl mx-auto px-4 md:px-8 h-[72px] flex justify-between items-center">
     <div class="flex items-center gap-3 cursor-pointer" onclick="router('home')">
       <img src="logo.png" onerror="this.src='https://via.placeholder.com/100/D71921/FFFFFF?text=U+'" alt="Unicron" class="h-11 w-11 rounded-full border-2 border-[#D71921] object-cover bg-white">
       <div>
         <h1 class="font-black text-[22px] leading-none tracking-tight"><span class="unicron-red-text">UNICRON</span>+</h1>
-        <p class="text-[10px] font-black tracking-[0.25em] text-black/50 mt-0.5">INSTALLER APP</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
@@ -60,19 +57,18 @@
   </div>
 </header>
 
-<!-- HOME VIEW - YOUR ORIGINAL DESIGN PRESERVED -->
 <div id="view-home">
 <main class="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
   <div class="grid lg:grid-cols-2 gap-8 items-start">
-    <!-- LEFT - YOUR ORIGINAL HERO -->
     <div>
       <div class="inline-flex items-center gap-2 bg-white border border-black/5 px-3 py-1.5 rounded-full text-[11px] font-bold">
         <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span> Live Selfie KYC Must • 3 Live Photos Compulsory • Camera Only • Trusted by 500+ Electricians
       </div>
       <h2 class="mt-6 font-black text-[48px] md:text-[64px] leading-[0.85] tracking-tighter">
-        HELLO<br>
-        <span class="unicron-red-text">INSTALLER</span><br>
-        <span class="text-[18px] md:text-[22px] font-semibold italic text-black/60 tracking-normal">Happy New Earnings!</span>
+        WELCOME<br>
+        <span class="unicron-red-text">START EARNING</span><br>
+        <span class="unicron-red-text">TODAY</span><br>
+        <span class="text-[18px] md:text-[22px] font-semibold italic text-black/60 tracking-normal">Start Your Earning Journey Today!</span>
       </h2>
       <p class="mt-5 text-[14px] leading-6 text-black/60 max-w-[520px]">
         Log your Unicron Inverter installation in 2 mins. Flat <b class="text-black">₦5,000</b> for all models. 
@@ -86,7 +82,7 @@
       </div>
 
       <div class="flex flex-wrap gap-3 mt-8">
-        <button onclick="openLogin('installer')" class="unicron-red text-white px-7 py-3.5 rounded-full font-black text-[13px]">Login with Live Selfie - Start Earning</button>
+        <button onclick="openLogin('installer')" class="unicron-red text-white px-7 py-3.5 rounded-full font-black text-[13px]">Login with Live Selfie - Start Earning Today</button>
         <button onclick="document.getElementById('models').scrollIntoView({behavior:'smooth'})" class="bg-white border border-black/10 px-7 py-3.5 rounded-full font-bold text-[13px]">View All Models</button>
       </div>
 
@@ -102,7 +98,6 @@
         </div>
       </div>
     </div>
-    <!-- RIGHT - MOBILE PREVIEW - YOUR ORIGINAL -->
     <div class="lg:sticky lg:top-[96px]">
       <div class="mx-auto w-full max-w-[340px] bg-[#111] rounded-[44px] p-[10px] shadow-[0_30px_60px_rgba(0,0,0,0.2)]">
         <div class="bg-white rounded-[36px] overflow-hidden">
@@ -133,18 +128,17 @@
           </div>
         </div>
       </div>
-      <p class="text-center text-[11px] text-black/40 mt-4">Preview: Installer Mobile App • Live Selfie + Live Photos Compulsory</p>
+      <p class="text-center text-[11px] text-black/40 mt-4">Preview: App • Live Selfie + Live Photos Compulsory</p>
     </div>
   </div>
 </main>
 </div>
 
-<!-- INSTALLER DASHBOARD - FULL WITH LIVE PHOTOS COMPULSORY -->
 <div id="view-installer" class="hidden max-w-7xl mx-auto px-4 md:px-8 py-8">
   <div class="grid md:grid-cols-3 gap-6">
     <div class="space-y-4">
       <div class="unicron-red text-white rounded-[24px] p-6">
-        <p class="text-[11px] opacity-80">Live Verified Installer</p>
+        <p class="text-[11px] opacity-80">Live Verified</p>
         <p id="installerName" class="font-black text-[20px] mt-1">Installer</p>
         <p id="selfieStatus" class="text-[11px] mt-1 bg-white/20 inline-block px-2 py-1 rounded-full">🤳 Live Selfie KYC ✓ Verified with Timestamp</p>
         <div class="bg-[#111] rounded-[18px] p-4 mt-4">
@@ -196,7 +190,6 @@
   </div>
 </div>
 
-<!-- ADMIN DASHBOARD -->
 <div id="view-admin" class="hidden">
 <section class="max-w-7xl mx-auto px-4 md:px-8 py-8">
   <div class="bg-white border border-black/5 rounded-[28px] p-6 md:p-8">
@@ -219,7 +212,7 @@
   </div>
 </section>
 </div>
-<!-- LOGIN MODAL WITH LIVE SELFIE COMPULSORY -->
+
 <div id="loginModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
   <div class="bg-white rounded-[28px] w-full max-w-[420px] p-7 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-start">
@@ -242,44 +235,16 @@
         <button onclick="fillDemo()" class="flex-1 bg-black text-white py-3 rounded-full text-[11px] font-bold">Fill Demo Data</button>
       </div>
       <p id="loginError" class="hidden text-[11px] text-red-600 bg-red-50 border border-red-100 p-3 rounded-[12px]"></p>
-      <p class="text-[10px] text-black/40 text-center mt-3">Backend: /api/* • Firebase + Flutterwave Live<br>Min Withdraw ₦10K • Flat ₦5K • Bonus 5=₦20K • Live Selfie + 3 Live Photos Compulsory • Camera Only</p>
+      <p class="text-[10px] text-black/40 text-center mt-3">Backend: Production Ready • Firebase + Flutterwave Live<br>Min Withdraw ₦10K • Flat ₦5K • Bonus 5=₦20K • Live Selfie + 3 Live Photos Compulsory • Camera Only</p>
     </div>
   </div>
 </div>
 
 <script>
 let currentRole='installer';let isRegistering=false;let gpsData=null;let banksCache=[];let stream=null;let currentCamTarget=null;let photos={photo1:null,photo2:null,photo3:null,loginSelfie:null};let photoBlobs={};
-
-async function openCamera(target){
-currentCamTarget=target;
-document.getElementById('cameraModal').style.display='flex';
-let title = target==='loginSelfie' ? 'LIVE Selfie Verification - Login KYC COMPULSORY' : target==='photo1' ? 'LIVE Photo 1: Inverter Machine - COMPULSORY' : target==='photo2' ? 'LIVE Photo 2: Serial Number Sticker - COMPULSORY' : 'LIVE Photo 3: Full Installation Setup - COMPULSORY';
-document.getElementById('camTitle').innerText=title;
-try{
-stream=await navigator.mediaDevices.getUserMedia({video:{facingMode: target==='loginSelfie' ? 'user' : 'environment', width:{ideal:1920}, height:{ideal:1080}}, audio:false});
-document.getElementById('video').srcObject=stream;
-}catch(e){alert('Camera permission needed - Allow camera. Error: '+e.message);}
-}
+async function openCamera(target){currentCamTarget=target;document.getElementById('cameraModal').style.display='flex';let title = target==='loginSelfie' ? 'LIVE Selfie Verification - Login KYC COMPULSORY' : target==='photo1' ? 'LIVE Photo 1: Inverter Machine - COMPULSORY' : target==='photo2' ? 'LIVE Photo 2: Serial Number Sticker - COMPULSORY' : 'LIVE Photo 3: Full Installation Setup - COMPULSORY';document.getElementById('camTitle').innerText=title;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode: target==='loginSelfie' ? 'user' : 'environment', width:{ideal:1920}, height:{ideal:1080}}, audio:false});document.getElementById('video').srcObject=stream;}catch(e){alert('Camera permission needed - Allow camera. Error: '+e.message);}}
 function closeCamera(){document.getElementById('cameraModal').style.display='none';if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}}
-function captureSelfie(){
-const video=document.getElementById('video');const canvas=document.getElementById('canvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;const ctx=canvas.getContext('2d');
-if(currentCamTarget==='loginSelfie'){ctx.translate(canvas.width,0);ctx.scale(-1,1);}
-ctx.drawImage(video,0,0);
-const now=new Date();const stamp=`LIVE VERIFIED ${now.toLocaleString()} | GPS: ${gpsData?gpsData.lat.toFixed(5)+','+gpsData.lng.toFixed(5):'Acquiring GPS'} | UNICRON+ | ${currentCamTarget}`;
-ctx.fillStyle='rgba(215,25,33,0.85)';ctx.fillRect(0,canvas.height-36,canvas.width,36);ctx.fillStyle='white';ctx.font='bold 12px Inter';ctx.fillText(stamp,8,canvas.height-12);
-canvas.toBlob(blob=>{
-photoBlobs[currentCamTarget]=blob;
-photos[currentCamTarget]=canvas.toDataURL('image/jpeg',0.85);
-if(currentCamTarget==='loginSelfie'){
-document.getElementById('selfieCheck').checked=true;document.getElementById('selfieCheckStatus').innerText='Verified ✓ LIVE '+now.toLocaleTimeString()+' - GPS Stamped';document.getElementById('selfieCheckStatus').className='text-green-600 font-black';
-}else{
-let statusId=currentCamTarget==='photo1'?'p1-status':currentCamTarget==='photo2'?'p2-status':'p3-status';
-document.getElementById(statusId).innerText='Captured ✓ LIVE '+now.toLocaleTimeString()+' • GPS ✓';document.getElementById(statusId).className='text-green-600 font-black';
-}
-closeCamera();
-alert((currentCamTarget==='loginSelfie'?'Live Selfie':'Live Photo')+' captured with GPS + Timestamp! Compulsory verified.');
-},'image/jpeg',0.85);
-}
+function captureSelfie(){const video=document.getElementById('video');const canvas=document.getElementById('canvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;const ctx=canvas.getContext('2d');if(currentCamTarget==='loginSelfie'){ctx.translate(canvas.width,0);ctx.scale(-1,1);}ctx.drawImage(video,0,0);const now=new Date();const stamp=`LIVE VERIFIED ${now.toLocaleString()} | GPS: ${gpsData?gpsData.lat.toFixed(5)+','+gpsData.lng.toFixed(5):'Acquiring GPS'} | UNICRON+ | ${currentCamTarget}`;ctx.fillStyle='rgba(215,25,33,0.85)';ctx.fillRect(0,canvas.height-36,canvas.width,36);ctx.fillStyle='white';ctx.font='bold 12px Inter';ctx.fillText(stamp,8,canvas.height-12);canvas.toBlob(blob=>{photoBlobs[currentCamTarget]=blob;photos[currentCamTarget]=canvas.toDataURL('image/jpeg',0.85);if(currentCamTarget==='loginSelfie'){document.getElementById('selfieCheck').checked=true;document.getElementById('selfieCheckStatus').innerText='Verified ✓ LIVE '+now.toLocaleTimeString()+' - GPS Stamped';document.getElementById('selfieCheckStatus').className='text-green-600 font-black';}else{let statusId=currentCamTarget==='photo1'?'p1-status':currentCamTarget==='photo2'?'p2-status':'p3-status';document.getElementById(statusId).innerText='Captured ✓ LIVE '+now.toLocaleTimeString()+' • GPS ✓';document.getElementById(statusId).className='text-green-600 font-black';}closeCamera();alert((currentCamTarget==='loginSelfie'?'Live Selfie':'Live Photo')+' captured with GPS + Timestamp! Compulsory verified.');},'image/jpeg',0.85);}
 window.addEventListener('load',async()=>{await loadBanks();const saved=JSON.parse(localStorage.getItem('unicron_user')||'null');if(saved)applyLogin(saved);getLocation();});
 function router(view){document.getElementById('view-home').classList.add('hidden');document.getElementById('view-installer').classList.add('hidden');document.getElementById('view-admin').classList.add('hidden');if(view==='home'){document.getElementById('view-home').classList.remove('hidden');window.scrollTo(0,0);}if(view==='installer'){document.getElementById('view-installer').classList.remove('hidden');loadMyInstalls();}if(view==='admin'){document.getElementById('view-admin').classList.remove('hidden');loadAdminData();}}
 function openLogin(role){currentRole=role;isRegistering=false;document.getElementById('loginModal').classList.remove('hidden');document.getElementById('loginTitle').innerText=role==='admin'?'Admin Login - Store Manager / MD':'Installer Login - Live Selfie Must (Compulsory)';document.getElementById('loginEmail').classList.toggle('hidden',role==='installer');document.getElementById('loginPhone').classList.toggle('hidden',role!=='installer');document.getElementById('registerName').classList.add('hidden');document.getElementById('loginBtn').innerText=role==='admin'?'Login as Admin':'Login with Live Selfie - Compulsory';document.getElementById('toggleRegBtn').classList.toggle('hidden',role==='admin');photos.loginSelfie=null;document.getElementById('selfieCheck').checked=false;document.getElementById('selfieCheckStatus').innerText='Not Done - Compulsory - Click "Do Live Selfie Now"';}
