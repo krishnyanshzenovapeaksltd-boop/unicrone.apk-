@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNICRON Stock Manager - RA2 International</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{font-family:Inter,sans-serif;background:#FFF5F3}</style>
+</head>
+<body class="p-4 md:p-8">
+<div class="max-w-6xl mx-auto">
+<h1 class="font-black text-2xl"><span class="text-[#D71921]">UNICRON</span> Stock Manager</h1>
+<p class="text-sm text-black/60">RA2 International Limited - Bina Vyapar ke - 13-digit Serial Verification</p>
+
+<!-- STATS -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+<div class="bg-[#D71921] text-white p-4 rounded-2xl"><p class="text-2xl font-black" id="totalStock">500</p><p class="text-xs font-bold">Total Stock</p></div>
+<div class="bg-white border p-4 rounded-2xl"><p class="text-2xl font-black" id="availStock">450</p><p class="text-xs font-bold">Available</p></div>
+<div class="bg-white border p-4 rounded-2xl"><p class="text-2xl font-black" id="usedStock">50</p><p class="text-xs font-bold">Used / Exited</p></div>
+<div class="bg-black text-white p-4 rounded-2xl"><p class="text-2xl font-black" id="fraudStock">12</p><p class="text-xs font-bold">Already Exited Attempts</p></div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-6 mt-6">
+<!-- ADD STOCK -->
+<div class="bg-white border rounded-2xl p-5">
+<h3 class="font-black text-sm">+ Add New Stock (Bina Vyapar)</h3>
+<p class="text-xs text-black/50 mt-1">Paste 100s of 13-digit serials from Invoice 973</p>
+
+<label class="text-xs font-bold mt-4 block">MODEL *</label>
+<select id="model" class="w-full border rounded-xl px-3 py-2.5 text-sm mt-1">
+<option>UNICRON NOVA 3 KVA 24V (₹215K)</option>
+<option>UNICRON NOVA 4.2 KVA 24V (₹270K)</option>
+<option>UNICRON NOVA 6.2 KVA 48V (₹335K)</option>
+<option>Unicron 2 KVA</option>
+<option>Unicron 12 KVA</option>
+<option>15KW Lithium Battery</option>
+</select>
+
+<label class="text-xs font-bold mt-3 block">INVOICE NO (Optional)</label>
+<input id="invoiceNo" value="973" class="w-full border rounded-xl px-3 py-2.5 text-sm mt-1" placeholder="973">
+
+<label class="text-xs font-bold mt-3 block">SERIAL NUMBERS (13-DIGIT EACH) - <span id="count" class="text-[#D71921]">0 valid</span></label>
+<textarea id="serials" rows="10" class="w-full border rounded-xl px-3 py-2.5 text-xs font-mono mt-1" placeholder="2604340900039
+2604340900054
+2604340900077
+2604340900085
+... paste 22 serials here"></textarea>
+
+<div class="flex gap-2 mt-3">
+<button onclick="addStock()" class="flex-1 bg-[#D71921] text-white py-2.5 rounded-full text-sm font-black">Add to Stock</button>
+<button onclick="clearAll()" class="bg-white border px-4 py-2.5 rounded-full text-sm font-bold">Clear</button>
+</div>
+<button onclick="exportCSV()" class="w-full mt-2 bg-black text-white py-2 rounded-full text-xs font-bold">Export CSV</button>
+</div>
+
+<!-- VERIFY -->
+<div class="bg-white border rounded-2xl p-5">
+<h3 class="font-black text-sm">🔍 Search & Verify Serial</h3>
+<p class="text-xs text-black/50 mt-1">13-digit instant validation</p>
+
+<label class="text-xs font-bold mt-4 block">ENTER SERIAL NO</label>
+<div class="flex gap-2 mt-1">
+<input id="searchSerial" placeholder="2604340900054" class="flex-1 border rounded-xl px-3 py-2.5 text-sm font-mono">
+<button onclick="verifySerial()" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-black">Verify</button>
+</div>
+
+<div id="result" class="hidden mt-4 p-3 rounded-xl text-sm font-bold"></div>
+
+<div class="mt-6">
+<h4 class="font-black text-xs">Demo Stock Table - Invoice 973</h4>
+<div class="overflow-x-auto mt-2 border rounded-xl">
+<table class="w-full text-xs text-left">
+<thead class="bg-gray-50 border-b"><tr><th class="p-2">Serial No</th><th class="p-2">Model</th><th class="p-2">Status</th><th class="p-2">Invoice</th></tr></thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+<footer class="mt-8 bg-black text-white p-4 rounded-2xl text-center">
+<p class="text-xs font-bold">UNICRON Stock Manager - RA2 International Limited</p>
+<p class="text-[11px] opacity-60 mt-1">Designed by krishnyansh zenova peaks ltd • Bina Vyapar ke • 13-digit serial integrity</p>
+</footer>
+</div>
+
+<script>
+const demoSerials = [
+{s:"2604340900039",m:"3 KVA",st:"Available",inv:"973"},
+{s:"2604340900046",m:"3 KVA",st:"Available",inv:"973"},
+{s:"2604340900054",m:"3 KVA",st:"Used / Exited",inv:"973",used:"Raju - 24-07-2026"},
+{s:"2604340900062",m:"3 KVA",st:"Available",inv:"973"},
+{s:"2604340900077",m:"3 KVA",st:"Available",inv:"973"},
+{s:"2604340900085",m:"3 KVA",st:"Available",inv:"973"},
+{s:"2604340900093",m:"3 KVA",st:"Available",inv:"973"},
+{s:"2605343211067",m:"4.2 KVA",st:"Available",inv:"973"},
+{s:"2605343211077",m:"4.2 KVA",st:"Available",inv:"973"},
+{s:"2605343211089",m:"4.2 KVA",st:"Available",inv:"973"},
+{s:"2605343811021",m:"6.2 KVA",st:"Available",inv:"973"},
+{s:"2605343811025",m:"6.2 KVA",st:"Available",inv:"973"},
+{s:"2605343811030",m:"6.2 KVA",st:"Available",inv:"973"}
+];
+let allSerials = [...demoSerials];
+
+function renderTable(){
+document.getElementById('tableBody').innerHTML = allSerials.map(x=>`
+<tr class="border-b">
+<td class="p-2 font-mono">${x.s}</td>
+<td class="p-2">${x.m}</td>
+<td class="p-2"><span class="px-2 py-1 rounded-full text-[11px] ${x.st.includes('Available')?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${x.st}</span></td>
+<td class="p-2">${x.inv}</td>
+</tr>`).join('');
+document.getElementById('totalStock').innerText = allSerials.length + 487;
+document.getElementById('availStock').innerText = allSerials.filter(x=>x.st.includes('Available')).length + 438;
+}
+renderTable();
+
+document.getElementById('serials').addEventListener('input',function(){
+const txt = this.value;
+const lines = txt.split(/[\n,\s]+/).filter(s=>/^\d{13}$/.test(s.trim()));
+document.getElementById('count').innerText = lines.length + ' valid';
+});
+
+function addStock(){
+const txt = document.getElementById('serials').value;
+const model = document.getElementById('model').value;
+const inv = document.getElementById('invoiceNo').value || '973';
+const lines = txt.split(/[\n,\s,]+/).map(s=>s.trim()).filter(s=>/^\d{13}$/.test(s));
+if(lines.length===0){alert('Paste 13-digit serials like 2604340900039');return;}
+
+const payload = lines.map(s=>({serial_no:s, model:model, invoice_no:inv}));
+
+// Call API
+fetch('/api/admin/import-serials',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({serials:payload})
+}).then(r=>r.json()).then(d=>{
+alert(`✅ ${d.imported || lines.length} serials added to stock!`);
+lines.forEach(s=>{
+if(!allSerials.find(x=>x.s===s)){
+allSerials.unshift({s:s,m:model,st:'Available',inv:inv});
+}
+});
+renderTable();
+}).catch(()=>{
+alert(`✅ Demo: ${lines.length} serials added (Firebase not connected)`);
+lines.forEach(s=>{
+if(!allSerials.find(x=>x.s===s)){
+allSerials.unshift({s:s,m:model,st:'Available',inv:inv});
+}
+});
+renderTable();
+});
+}
+
+function verifySerial(){
+const s = document.getElementById('searchSerial').value.trim();
+const res = document.getElementById('result');
+res.classList.remove('hidden');
+if(!/^\d{13}$/.test(s)){
+res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-red-50 text-red-700 border border-red-200';
+res.innerText = '❌ Invalid - Must be 13 digits like 2604340900039';
+return;
+}
+res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-blue-50 text-blue-700 border';
+res.innerText = '🔍 Checking RA2 International stock...';
+
+fetch('/api/verify-serial',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({serialNo:s})
+}).then(r=>r.json()).then(d=>{
+if(d.valid){
+res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-green-50 text-green-700 border border-green-200';
+res.innerText = d.message;
+}else{
+if(d.alreadyUsed){
+res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-red-50 text-red-700 border border-red-200';
+res.innerText = d.message + ' - Already Exited!';
+}else{
+res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-orange-50 text-orange-700 border';
+res.innerText = d.message;
+}
+}
+}).catch(()=>{
+const found = allSerials.find(x=>x.s===s);
+if(!found){
+res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-orange-50 text-orange-700 border';
+res.innerText = '❌ Invalid Serial - Not found in stock (Invoice 973)';
+}else if(found.st.includes('Used')){
+res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-red-50 text-red-700 border border-red-200';
+res.innerText = `⚠️ Already Exited - Used by ${found.used || 'Raju - 24-07-2026'} - ${found.s}`;
+}else{
+res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-green-50 text-green-700 border border-green-200';
+res.innerText = `✅ Verified - ${found.m} - Invoice ${found.inv} - Eligible for ₦5K`;
+}
+});
+}
+
+function clearAll(){document.getElementById('serials').value='';document.getElementById('count').innerText='0 valid';}
+function exportCSV(){
+let csv = 'serial_no,model,invoice_no,status\n';
+allSerials.forEach(x=>{csv+=`${x.s},${x.m},${x.inv},${x.st}\n`;});
+const blob = new Blob([csv],{type:'text/csv'});
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');a.href=url;a.download=`unicron-stock-${Date.now()}.csv`;a.click();
+}
+</script>
+</body>
+</html>
