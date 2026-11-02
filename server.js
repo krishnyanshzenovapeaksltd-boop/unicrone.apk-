@@ -569,6 +569,81 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
   }
 });
+// ===== SERIAL VERIFICATION - BINA VYAPAR - 20 Serials from Invoice 973 =====
+
+app.post('/api/verify-serial', async (req, res) => {
+  try {
+    const { serialNo } = req.body;
+    if (!serialNo) return res.status(400).json({ valid: false, message: 'Serial required' });
+    
+    const serial = String(serialNo).trim();
+    if (!/^\d{13}$/.test(serial)) {
+      return res.json({ valid: false, message: '❌ Invalid - Must be 13 digits like 2604340900039' });
+    }
+
+    if (!db) {
+      // Demo mode - 20 serials from your invoice 973
+      const allSerials = ['2604340900054','2604340900077','2604340900085','2604340900049','2604340900080','2605343211077','2605343211067','2605343211092','2605343211094','2605343211035','2605343211049','2605343211016','2605343211089','2605343811084','2605343811025','2605343811073','2605343811053','2605343811021','2605343811065','2605343811030','2604340900039','2604340900019'];
+      const usedSerials = ['2604340900054']; // Example: already used
+      if (!allSerials.includes(serial)) {
+        return res.json({ valid: false, alreadyUsed: false, message: '❌ Invalid - Not in RA2 International stock (Invoice 973)' });
+      }
+      if (usedSerials.includes(serial)) {
+        return res.json({ valid: false, alreadyUsed: true, message: '⚠️ Already Exited - Used by Raju on 24-07-2026', usedBy: 'Raju' });
+      }
+      return res.json({ valid: true, message: '✅ Verified - Eligible for ₦5K', model: 'UNICRON NOVA' });
+    }
+
+    // Firebase - Check used first
+    const usedDoc = await db.collection('usedSerials').doc(serial).get();
+    if (usedDoc.exists) {
+      const d = usedDoc.data();
+      return res.json({ valid: false, alreadyUsed: true, message: `⚠️ Already Exited - Used by ${d.installerName} on ${d.usedAt}`, usedBy: d.installerName });
+    }
+
+    // Check inventory
+    const invDoc = await db.collection('inventorySerials').doc(serial).get();
+    if (!invDoc.exists) {
+      return res.json({ valid: false, message: '❌ Invalid - Not found in stock. Add via Stock Manager' });
+    }
+
+    const inv = invDoc.data();
+    if (inv.status === 'used') {
+      return res.json({ valid: false, alreadyUsed: true, message: '⚠️ Already Exited - Marked used' });
+    }
+
+    return res.json({ valid: true, message: `✅ Verified - ${inv.model} - Eligible for ₦5K`, model: inv.model });
+
+  } catch (err) {
+    res.status(500).json({ valid: false, message: 'Error: ' + err.message });
+  }
+});
+
+app.post('/api/admin/import-serials', async (req, res) => {
+  try {
+    const { serials } = req.body; // [{serial_no, model}]
+    if (!serials) return res.status(400).json({ error: 'No serials' });
+    if (!db) return res.json({ imported: serials.length, message: 'Demo - would import ' + serials.length });
+    
+    const batch = db.batch();
+    for (const item of serials) {
+      const sNo = String(item.serial_no || item.serial || '').trim();
+      if (!sNo) continue;
+      batch.set(db.collection('inventorySerials').doc(sNo), {
+        serialNo: sNo,
+        model: item.model || 'UNICRON',
+        invoiceNo: item.invoice_no || '973',
+        price: item.price || 0,
+        status: 'available',
+        importedAt: new Date().toISOString()
+      }, { merge: true });
+    }
+    await batch.commit();
+    res.json({ imported: serials.length, message: `✅ Imported ${serials.length} serials` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ==================== START SERVER ====================
 app.listen(PORT, () => {
