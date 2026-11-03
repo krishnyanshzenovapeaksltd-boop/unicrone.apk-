@@ -22,10 +22,3 @@
     }
   ]
 }
-
-"screenshots": [
-  {
-    "src": "/icon.png",   
-    "sizes": "192x192"
-  }
-]
