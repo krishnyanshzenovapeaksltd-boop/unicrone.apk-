@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UNICRON - MD Withdraw Approval - RA2 Wema 0127884170</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-4">
+<div class="max-w-3xl mx-auto">
+<h1 class="text-xl font-black">💰 MD Withdraw Approval</h1>
+<p class="text-xs mt-1">Payout From: <b>RA2 international limited - A2K Enterprises - Wema Bank - 0127884170</b></p>
+<p class="text-xs">Subaccount: <span class="font-mono">RS_9B6B5FF9A0B71815CDF19707E93BDB64</span> - 100% share</p>
+
+<div class="mt-6 bg-white border rounded-2xl p-5">
+<h3 class="font-black text-sm">🔐 Pending Withdrawals - OTP Required</h3>
+<div id="withdrawList" class="mt-4 space-y-3">
+<p class="text-xs text-black/50">Loading withdraw requests...</p>
+</div>
+</div>
+
+<div id="otpBox" class="hidden mt-4 bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-5">
+<h3 class="font-black text-sm">🔐 Enter OTP Sent to MD</h3>
+<p class="text-xs mt-1" id="otpInfo">OTP sent to 23480XXXXXXXX - Expires in 10 min</p>
+<p class="text-xs mt-1">Withdraw: <span id="otpWithdrawInfo" class="font-bold"></span></p>
+<div class="flex gap-2 mt-3">
+<input id="mdOtpInput" placeholder="6-digit OTP" maxlength="6" class="border rounded-xl px-4 py-3 font-mono font-black text-center w-32 text-lg">
+<button id="verifyBtn" class="bg-[#D71921] text-white px-6 py-3 rounded-xl font-black text-sm">Verify & Pay from RA2 Wema</button>
+</div>
+<p class="text-[11px] text-black/50 mt-2">Payout from: A2K Enterprises - Wema Bank - 0127884170 via Subaccount RS_9B6B5F...</p>
+</div>
+
+</div>
+
+<script>
+const API = "https://myunicron.com.ng";
+let currentWithdrawId = null;
+
+async function loadWithdraws() {
+  try {
+    const res = await fetch(`${API}/api/admin/withdraw-requests`);
+    const data = await res.json();
+    const list = document.getElementById('withdrawList');
+    
+    if (!data.withdraws || data.withdraws.length === 0) {
+      list.innerHTML = '<p class="text-xs">No pending withdrawals - All paid!</p>';
+      return;
+    }
+
+    list.innerHTML = data.withdraws.map(w => `
+      <div class="border rounded-xl p-3 flex justify-between items-center ${w.status === 'pending_otp' ? 'bg-yellow-50 border-yellow-300' : 'bg-green-50 border-green-300'}">
+        <div>
+          <p class="font-bold text-sm">${w.installerName} - ₦${w.amount}</p>
+          <p class="text-xs">${w.installerBank} - ${w.installerAccountNo} - ${w.installerAccountName}</p>
+          <p class="text-xs text-black/60">Requested: ${new Date(w.requestedAt).toLocaleString()} - Status: ${w.status}</p>
+          <p class="text-[11px]">From: ${w.payoutFrom?.payoutAccount || 'A2K Wema 0127884170'} - Sub: ${w.subaccount_id?.substring(0,10)}...</p>
+        </div>
+        <div class="flex flex-col gap-2">
+          ${w.status === 'pending_otp' ? `<button onclick="showOtpBox('${w.id}', '${w.installerName}', ${w.amount}, '${w.installerBank} ${w.installerAccountNo}')" class="bg-[#D71921] text-white px-4 py-2 rounded-full text-xs font-black">Enter OTP & Pay</button>` : `<span class="text-xs font-bold text-green-700">✅ ${w.status}</span>`}
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    document.getElementById('withdrawList').innerHTML = `<p class="text-xs text-red-600">Error: ${e.message} - Check /api/admin/withdraw-requests endpoint exists</p>`;
+  }
+}
+
+function showOtpBox(id, name, amount, bankInfo) {
+  currentWithdrawId = id;
+  document.getElementById('otpBox').classList.remove('hidden');
+  document.getElementById('otpWithdrawInfo').innerText = `${name} - ₦${amount} - ${bankInfo}`;
+  document.getElementById('otpInfo').innerText = `OTP sent to MD (${new Date().toLocaleTimeString()} - Expires in 10 min) - Check MD phone SMS`;
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+document.getElementById('verifyBtn').onclick = async () => {
+  const otp = document.getElementById('mdOtpInput').value;
+  if (!otp || otp.length !== 6) return alert('Enter 6-digit OTP');
+  
+  const btn = document.getElementById('verifyBtn');
+  btn.innerText = 'Verifying & Paying...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${API}/api/admin/verify-withdraw-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ withdrawId: currentWithdrawId, otp })
+    });
+    const data = await res.json();
+    alert(data.message || data.error);
+    if (data.success) {
+      document.getElementById('otpBox').classList.add('hidden');
+      loadWithdraws();
+    }
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+  btn.innerText = 'Verify & Pay from RA2 Wema';
+  btn.disabled = false;
+};
+
+// Load on start + refresh every 10 sec
+loadWithdraws();
+setInterval(loadWithdraws, 10000);
+
+// Need endpoint to list withdraws - Add this in server.js if not exists
+</script>
+</body>
+</html>
