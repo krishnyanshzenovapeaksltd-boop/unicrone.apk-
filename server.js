@@ -24,6 +24,20 @@ const multer = require('multer');
 const admin = require('firebase-admin');
 const bcrypt = require('bcryptjs');
 
+// ===== UNICRON PAYOUT - SUBACCOUNT CONFIG - NO PROBLEM FOR YOUR WEBSITE =====
+const UNICRON_SUBACCOUNT = {
+  id: "RS_9B6B5FF9A0B71815CDF19707E93BDB64", // RA2 international limited - A2K Enterprises Wema 0127884170
+  name: "RA2 international limited",
+  bank: "Wema Bank",
+  accountNo: "0127884170",
+  payoutAccount: "A2K Enterprises - Wema Bank - 0127884170"
+};
+
+const PAYOUT_ACCOUNT = UNICRON_SUBACCOUNT;
+
+console.log(`💰 UNICRON Payout via Subaccount: ${UNICRON_SUBACCOUNT.name} - ${UNICRON_SUBACCOUNT.id}`);
+console.log(`💰 Your Website: Uses default account - No mixing!`);
+
 // ==================== APP SETUP ====================
 const app = express();
 const PORT = process.env.PORT || 10000;
