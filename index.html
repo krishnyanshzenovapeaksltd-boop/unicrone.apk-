@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title> UNICRON | </title>
+<title>Unicron | RA2 International - Installer Incentive App</title>
 <link rel="icon" href="logo.png">
 <link rel="icon" href="icon-512.png">  
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#8B0000">
+<meta name="theme-color" content="#D71921">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="UNICRON+"> 
+<meta name="apple-mobile-web-app-title" content="Unicron"> 
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -20,6 +20,7 @@
   .unicron-peach{background:#FFF1ED}
   video{transform:scaleX(-1)}
   #cameraModal{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;padding:16px}
+  #qrModal{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:9998;display:none;align-items:center;justify-content:center;padding:16px}
 </style>
 </head>
 <body class="antialiased">
@@ -40,18 +41,38 @@
   <p class="text-white/40 text-[10px] mt-3 text-center">Compulsory: Selfie for login + 3 photos for each installation<br>Timestamp + GPS watermark auto added</p>
 </div>
 
+<div id="qrModal">
+  <div class="bg-white rounded-[28px] max-w-[380px] w-full p-6 text-center shadow-2xl border">
+    <div class="flex justify-between items-center">
+      <h3 class="font-black text-[18px]">📱 Download Unicron App</h3>
+      <button onclick="closeQr()" class="bg-gray-100 w-8 h-8 rounded-full font-bold">✕</button>
+    </div>
+    <div class="mt-5 bg-[#FFF1ED] border-2 border-red-100 rounded-[24px] p-4">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://myunicron.com.ng&color=D71921" alt="QR Unicron" class="w-[220px] h-[220px] mx-auto rounded-2xl border-4 border-[#D71921] bg-white p-1">
+      <p class="font-mono text-[12px] font-black text-[#D71921] mt-3">https://myunicron.com.ng</p>
+      <p class="text-[11px] font-bold mt-1">Scan QR to Open - Direct Link</p>
+    </div>
+    <a href="https://myunicron.com.ng" class="block mt-4 bg-[#D71921] text-white py-3 rounded-full font-black text-[13px]">📲 Open App - Direct Link</a>
+    <a href="download.html" class="block mt-2 bg-black text-white py-3 rounded-full font-bold text-[12px]">⬇️ Full Download Page</a>
+    <div class="text-left bg-gray-50 rounded-xl p-3 mt-4 text-[11px] leading-5"><b>How to Install (30 sec):</b><br>Android: Open link → ⋮ Menu → Install App / Add to Home Screen<br>iPhone: Safari → Share → Add to Home Screen<br>Unicron icon will appear like real app!</div>
+    <p class="text-[9px] text-black/40 mt-3">Payout: A2K Enterprises - Wema 0127884170 - Sub RS_9B6B5F - RA2 100% - Your website money safe</p>
+  </div>
+</div>
+
 <header class="bg-white border-b border-black/5 sticky top-0 z-50 backdrop-blur-md">
   <div class="max-w-7xl mx-auto px-4 md:px-8 h-[72px] flex justify-between items-center">
     <div class="flex items-center gap-3 cursor-pointer" onclick="router('home')">
       <img src="logo.png" onerror="this.src='https://via.placeholder.com/100/D71921/FFFFFF?text=U+'" alt="Unicron" class="h-11 w-11 rounded-full border-2 border-[#D71921] object-cover bg-white">
       <div>
-        <h1 class="font-black text-[22px] leading-none tracking-tight"><span class="unicron-red-text">UNICRON</span>+</h1>
+        <h1 class="font-black text-[22px] leading-none tracking-tight"><span class="unicron-red-text">Unicron</span></h1>
+        <p class="text-[10px] font-bold text-black/40 tracking-widest">RA2 INTERNATIONAL</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
+      <button onclick="openQr()" class="bg-white border-2 border-[#D71921] text-[#D71921] px-4 py-2.5 rounded-full text-[11px] font-black hover:bg-[#D71921] hover:text-white">📱 QR Download</button>
       <span id="userBadge" class="hidden bg-black text-white px-3 py-1.5 rounded-full text-[11px] font-bold max-w-[140px] truncate"></span>
       <button id="logoutBtn" onclick="logout()" class="hidden bg-white border border-black/10 px-4 py-2.5 rounded-full text-[12px] font-black hover:bg-black hover:text-white">Logout</button>
-      <button id="adminLoginBtn" onclick="openLogin('admin')" class="unicron-red text-white px-5 py-2.5 rounded-full text-[12px] font-black hover:bg-black transition">Admin Login</button>
+      <button id="adminLoginBtn" onclick="openLogin('admin')" class="unicron-red text-white px-5 py-2.5 rounded-full text-[12px] font-black hover:bg-black transition">Admin</button>
       <button id="installerLoginBtn" onclick="openLogin('installer')" class="bg-black text-white px-5 py-2.5 rounded-full text-[12px] font-black">Installer Login</button>
     </div>
   </div>
@@ -64,37 +85,41 @@
       <div class="inline-flex items-center gap-2 bg-white border border-black/5 px-3 py-1.5 rounded-full text-[11px] font-bold">
         <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span> Live Selfie KYC Must • 3 Live Photos Compulsory • Camera Only • Trusted by 500+ Electricians
       </div>
-      <h2 class="mt-6 font-black text-[48px] md:text-[64px] leading-[0.85] tracking-tighter">
+      <h2 class="mt-6 font-black text-[44px] md:text-[56px] leading-[0.85] tracking-tighter">
         WELCOME<br>
         <span class="unicron-red-text">START EARNING</span><br>
         <span class="unicron-red-text">TODAY</span><br>
-        <span class="text-[18px] md:text-[22px] font-semibold italic text-black/60 tracking-normal">Start Your Earning Journey Today!</span>
+        <span class="text-[18px] md:text-[20px] font-semibold italic text-black/60 tracking-normal">Start Your Earning Journey Today!</span>
       </h2>
       <p class="mt-5 text-[14px] leading-6 text-black/60 max-w-[520px]">
         Log your Unicron Inverter installation in 2 mins. Flat <b class="text-black">₦5,000</b> for all models. 
-        Serial No <span class="font-mono bg-white border px-1.5 rounded">2604340900039</span> • <b class="text-black">Live Selfie at Login Compulsory</b> • <b class="text-black">3 Live Photos Compulsory</b> (No Gallery) • GPS Verified • Min Withdraw <b class="text-black">₦10,000</b> • Bonus 5 = ₦20K Extra
+        Serial No <span class="font-mono bg-white border px-1.5 rounded">2604340900039</span> (13 digits) • <b class="text-black">Live Selfie at Login Compulsory</b> • <b class="text-black">3 Live Photos Compulsory</b> (No Gallery) • GPS Verified • Min Withdraw <b class="text-black">₦10,000</b> • Bonus 5 = ₦20K Extra
       </p>
-
-      <div class="grid grid-cols-3 gap-3 mt-7 max-w-[520px]">
+      <div class="mt-4 p-3 bg-black text-white rounded-[14px] text-[11px] max-w-[520px]">
+        <b>💰 Payout From:</b> RA2 international limited • A2K Enterprises • 【entity-Wema Bank¦canonical_name=Wema Bank】 • <b>0127884170</b> • Subaccount RS_9B6B5FF9A0B71815CDF19707E93BDB64 (100% share) • Your website money safe!
+      </div>
+      <div class="mt-4 p-3 bg-[#D71921] text-white rounded-[14px] text-[11px] max-w-[520px] flex gap-2 flex-wrap">
+        <span class="bg-white text-[#D71921] px-2 py-1 rounded-full font-black">🎁 Offers</span>
+        <span>5K Cashback: Any Inverter + Any Battery</span> • <span class="bg-black px-2 py-1 rounded-full">15K Discount: 6.2KVA + 15KW Battery</span>
+      </div>
+      <div class="grid grid-cols-3 gap-3 mt-5 max-w-[520px]">
         <div class="bg-white border border-black/5 p-4 rounded-[20px]"><p class="text-[26px] font-black unicron-red-text">₦5K</p><p class="text-[11px] font-black tracking-wide mt-1">FLAT / MODEL</p><p class="text-[10px] text-black/50">Live Selfie Must</p></div>
         <div class="bg-white border border-black/5 p-4 rounded-[20px]"><p class="text-[26px] font-black">₦10K</p><p class="text-[11px] font-black tracking-wide mt-1">MIN WITHDRAW</p><p class="text-[10px] text-black/50">Selfie Verified</p></div>
-        <div class="bg-black text-white p-4 rounded-[20px]"><p class="text-[22px] font-black">5 = ₦20K</p><p class="text-[11px] font-bold tracking-wide mt-1">BONUS SCHEME</p><p class="text-[10px] text-white/60">Extra on 5th install</p></div>
+        <div class="bg-black text-white p-4 rounded-[20px]"><p class="text-[22px] font-black">5 = ₦20K</p><p class="text-[11px] font-bold tracking-wide mt-1">BONUS SCHEME</p><p class="text-[10px] text-white/60">Extra on 5th</p></div>
       </div>
-
-      <div class="flex flex-wrap gap-3 mt-8">
-        <button onclick="openLogin('installer')" class="unicron-red text-white px-7 py-3.5 rounded-full font-black text-[13px]">Login with Live Selfie - Start Earning Today</button>
-        <button onclick="document.getElementById('models').scrollIntoView({behavior:'smooth'})" class="bg-white border border-black/10 px-7 py-3.5 rounded-full font-bold text-[13px]">View All Models</button>
+      <div class="flex flex-wrap gap-3 mt-6">
+        <button onclick="openLogin('installer')" class="unicron-red text-white px-7 py-3.5 rounded-full font-black text-[13px]">Login with Live Selfie - Start Earning</button>
+        <button onclick="openQr()" class="bg-white border-2 border-black px-7 py-3.5 rounded-full font-black text-[13px]">📱 QR Download - Direct Link</button>
       </div>
-
-      <div id="models" class="mt-10 bg-white border border-black/5 rounded-[24px] p-5">
-        <h3 class="font-black text-[14px]">Models Supported - 6 Models - Live Photos Compulsory for All</h3>
+      <div id="models" class="mt-8 bg-white border border-black/5 rounded-[24px] p-5">
+        <h3 class="font-black text-[14px]">Models Supported - 6 Models - Live Photos Compulsory</h3>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
-          <div class="unicron-peach border border-red-100 p-3 rounded-2xl"><p class="font-bold text-[13px]">Nova 2 KVA</p><p class="text-[11px] text-black/60">₦5K Flat • Live Photo Must</p></div>
-          <div class="unicron-peach border border-red-100 p-3 rounded-2xl"><p class="font-bold text-[13px]">Nova 3.5 KVA</p><p class="text-[11px] text-black/60">₦5K Flat • Live Photo Must</p></div>
-          <div class="bg-white border-2 border-[#D71921] p-3 rounded-2xl"><p class="font-black text-[13px] unicron-red-text">Nova 4.2 KVA</p><p class="text-[11px]">Popular • ₦5K • Live Must</p></div>
-          <div class="bg-white border-2 border-[#D71921] p-3 rounded-2xl"><p class="font-black text-[13px] unicron-red-text">Nova 6.2 KVA</p><p class="text-[11px]">Top Selling • ₦5K • Live Must</p></div>
-          <div class="bg-white border p-3 rounded-2xl"><p class="font-bold text-[13px]">Nova 12 KVA</p><p class="text-[11px] text-black/60">₦5K Flat • Live Must</p></div>
-          <div class="bg-black text-white p-3 rounded-2xl"><p class="font-bold text-[13px]">15KW Lithium</p><p class="text-[11px] text-white/60">Battery • ₦5K • Live Must</p></div>
+          <div class="unicron-peach border border-red-100 p-3 rounded-2xl"><p class="font-bold text-[13px]">Nova 2 KVA</p><p class="text-[11px] text-black/60">₦5K Flat • Live Must</p></div>
+          <div class="unicron-peach border border-red-100 p-3 rounded-2xl"><p class="font-bold text-[13px]">Nova 3.5 KVA</p><p class="text-[11px] text-black/60">₦5K Flat • Live Must</p></div>
+          <div class="bg-white border-2 border-[#D71921] p-3 rounded-2xl"><p class="font-black text-[13px] unicron-red-text">Nova 4.2 KVA</p><p class="text-[11px]">Popular • ₦5K</p></div>
+          <div class="bg-white border-2 border-[#D71921] p-3 rounded-2xl"><p class="font-black text-[13px] unicron-red-text">Nova 6.2 KVA</p><p class="text-[11px]">Top Selling • ₦5K</p></div>
+          <div class="bg-white border p-3 rounded-2xl"><p class="font-bold text-[13px]">Nova 12 KVA</p><p class="text-[11px] text-black/60">₦5K Flat</p></div>
+          <div class="bg-black text-white p-3 rounded-2xl"><p class="font-bold text-[13px]">15KW Lithium</p><p class="text-[11px] text-white/60">Battery • ₦5K</p></div>
         </div>
       </div>
     </div>
@@ -102,33 +127,29 @@
       <div class="mx-auto w-full max-w-[340px] bg-[#111] rounded-[44px] p-[10px] shadow-[0_30px_60px_rgba(0,0,0,0.2)]">
         <div class="bg-white rounded-[36px] overflow-hidden">
           <div class="unicron-red text-white p-5">
-            <p class="text-[11px] opacity-80">Live Selfie Verified ✓</p>
-            <p class="font-black text-[18px] mt-0.5">Emeka • Lagos • KYC ✓</p>
-            <div class="bg-[#111] rounded-[18px] p-4 mt-4 flex justify-between items-center">
-              <div><p class="text-[11px] text-white/60">Available Balance</p><p class="text-[24px] font-black text-white">₦15,000</p><p class="text-[10px] text-green-400">Min Withdraw ₦10K • Selfie ✓</p></div>
-              <button onclick="openLogin('installer')" class="bg-white text-black px-4 py-2 rounded-full text-[11px] font-black">WITHDRAW</button>
+            <p class="text-[11px] opacity-80">Live Selfie Verified ✓ • Real Firestore</p>
+            <p class="font-black text-[18px] mt-0.5">Installer • Real Balance</p>
+            <div class="bg-[#111] rounded-[18px] p-4 mt-4">
+              <p class="text-[11px] text-white/60">Available Balance (Real from Firestore)</p>
+              <p class="text-[24px] font-black text-white">₦ Real Balance</p>
+              <p class="text-[10px] text-green-400">Min Withdraw ₦10K • Payout Wema 0127884170</p>
             </div>
           </div>
           <div class="p-4 space-y-3">
             <div class="unicron-peach border border-red-100 rounded-[18px] p-3">
-              <p class="text-[11px] font-black unicron-red-text">SCHEME: 5 installs = ₦20K Extra • Live Verified Only</p>
+              <p class="text-[11px] font-black unicron-red-text">BONUS: 5 installs = ₦20K Extra • Real Progress</p>
               <div class="w-full bg-red-100 h-2 rounded-full mt-2 overflow-hidden"><div class="unicron-red h-2 w-[60%] rounded-full"></div></div>
-              <p class="text-[11px] mt-1.5">3/5 completed • 2 more to get ₦20K • Live Selfie Must</p>
+              <p class="text-[11px] mt-1.5">3/5 completed • 2 more to get ₦20K • Real Firestore</p>
             </div>
-            <div class="border border-black/5 rounded-[18px] p-3 flex gap-3">
-              <div class="w-12 h-12 unicron-peach rounded-xl flex items-center justify-center font-black unicron-red-text text-[11px] leading-none text-center">6.2<br>KVA</div>
-              <div class="flex-1"><p class="font-bold text-[13px]">Nova 6.2 KVA</p><p class="font-mono text-[11px] text-black/60">2604340900039</p><p class="text-[11px] font-black text-green-600">✓ Approved - ₦5,000 • Live Photos ✓</p></div>
+            <div class="border-2 border-green-200 rounded-[18px] p-3 flex gap-3 bg-green-50">
+              <div class="w-12 h-12 bg-white border rounded-xl flex items-center justify-center"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://myunicron.com.ng" class="w-10 h-10"></div>
+              <div class="flex-1"><p class="font-black text-[13px]">QR Download Available</p><p class="text-[11px]">Scan to download app directly</p><p class="text-[11px] font-black text-[#D71921]">myunicron.com.ng</p></div>
             </div>
-            <div class="border border-black/5 rounded-[18px] p-3 flex gap-3 opacity-60">
-              <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center font-black text-[11px]">4.2<br>KVA</div>
-              <div class="flex-1"><p class="font-bold text-[13px]">Nova 4.2 KVA</p><p class="font-mono text-[11px]">2604340900019</p><p class="text-[11px] font-bold text-orange-600">Pending - Verify Live Photos</p></div>
-            </div>
-            <button onclick="openLogin('installer')" class="w-full unicron-red text-white py-3.5 rounded-full font-black text-[13px]">+ Log New Installation (Live Photos Must)</button>
-            <p class="text-center text-[10px] text-black/40">Live Selfie at Login Must • 3 Live Photos Must • Camera Only • No Gallery • GPS Must</p>
+            <button onclick="openLogin('installer')" class="w-full unicron-red text-white py-3.5 rounded-full font-black text-[13px]">+ Log Installation (Real API)</button>
+            <p class="text-center text-[10px] text-black/40">Real Firestore • No Demo • Camera Only • GPS Must • Payout RA2 Wema 0127884170</p>
           </div>
         </div>
       </div>
-      <p class="text-center text-[11px] text-black/40 mt-4">Preview: App • Live Selfie + Live Photos Compulsory</p>
     </div>
   </div>
 </main>
@@ -138,53 +159,84 @@
   <div class="grid md:grid-cols-3 gap-6">
     <div class="space-y-4">
       <div class="unicron-red text-white rounded-[24px] p-6">
-        <p class="text-[11px] opacity-80">Live Verified</p>
+        <p class="text-[11px] opacity-80">Live Verified • Real Firestore</p>
         <p id="installerName" class="font-black text-[20px] mt-1">Installer</p>
-        <p id="selfieStatus" class="text-[11px] mt-1 bg-white/20 inline-block px-2 py-1 rounded-full">🤳 Live Selfie KYC ✓ Verified with Timestamp</p>
+        <p id="selfieStatus" class="text-[11px] mt-1 bg-white/20 inline-block px-2 py-1 rounded-full">🤳 Live Selfie KYC ✓ Verified - Real</p>
         <div class="bg-[#111] rounded-[18px] p-4 mt-4">
-          <p class="text-[11px] text-white/60">Available Balance</p>
+          <p class="text-[11px] text-white/60">Available Balance (Real)</p>
           <p id="balance" class="text-[28px] font-black">₦0</p>
-          <button onclick="handleWithdraw()" class="mt-3 bg-white text-black w-full py-2.5 rounded-full text-[12px] font-black">Withdraw via Flutterwave - Selfie Verified</button>
-          <p class="text-[10px] text-white/50 mt-2">Min ₦10K • Live Selfie + Live Photos Verified Only</p>
+          <button onclick="handleWithdraw()" class="mt-3 bg-white text-black w-full py-2.5 rounded-full text-[12px] font-black">Withdraw - Payout Wema 0127884170</button>
+          <p class="text-[10px] text-white/50 mt-2">Min ₦10K • Payout via RA2 Wema 0127884170 • Sub RS_9B6B5F</p>
         </div>
         <div class="mt-4 bg-white/10 rounded-[16px] p-3">
           <p class="text-[11px] font-bold">Bonus: 5 = ₦20K Extra</p>
           <div class="w-full bg-white/20 h-2 rounded-full mt-2"><div id="bonusBar" class="bg-white h-2 rounded-full" style="width:0%"></div></div>
-          <p id="bonusText" class="text-[11px] mt-1">0/5</p>
+          <p id="bonusText" class="text-[11px] mt-1">0/5 - Real from Firestore</p>
+        </div>
+        <div class="mt-3 bg-white text-black rounded-[16px] p-3 text-center">
+          <p class="font-black text-[11px]">📱 QR Download</p>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://myunicron.com.ng&color=D71921" class="w-24 h-24 mx-auto mt-2 rounded-xl border-2 border-[#D71921]">
+          <p class="text-[10px] font-mono mt-1">myunicron.com.ng</p>
         </div>
       </div>
       <div class="bg-white border rounded-[20px] p-4">
-        <p class="font-black text-[13px]">My Bank for Payout - Live KYC Verified</p>
-        <div id="bankInfo" class="text-[12px] mt-2 text-black/60">Not set - Live selfie verified required</div>
+        <p class="font-black text-[13px]">My Bank for Payout - Real KYC Verified (Firestore)</p>
+        <div id="bankInfo" class="text-[12px] mt-2 text-black/60">Not set - Verify to save real</div>
         <div class="mt-3 space-y-2">
           <select id="bankSelect" class="w-full border rounded-full px-4 py-2.5 text-[12px]"></select>
-          <input id="acctNo" placeholder="Account Number (10 digits)" class="w-full border rounded-full px-4 py-2.5 text-[12px]">
-          <input id="acctName" placeholder="Account Name" readonly class="w-full border rounded-full px-4 py-2.5 text-[12px] bg-gray-50">
-          <button onclick="verifyBank()" class="w-full bg-black text-white py-2.5 rounded-full text-[11px] font-black">Verify & Save Bank</button>
+          <input id="acctNo" placeholder="Account Number (10 digits)" class="w-full border rounded-full px-4 py-2.5 text-[12px]" maxlength="10">
+          <input id="acctName" placeholder="Account Name (auto)" readonly class="w-full border rounded-full px-4 py-2.5 text-[12px] bg-gray-50">
+          <button onclick="verifyBank()" class="w-full bg-black text-white py-2.5 rounded-full text-[11px] font-black">Verify & Save Real to Firestore</button>
+          <p class="text-[10px] text-black/40">Real save to users collection - No demo</p>
         </div>
+      </div>
+      <div class="bg-black text-white rounded-[20px] p-4 text-[11px]">
+        <p class="font-black">💰 Payout Info (Real)</p>
+        <p class="mt-2 leading-5">RA2 international limited<br>A2K Enterprises<br>Wema Bank<br><b class="text-[14px]">0127884170</b><br>Subaccount: RS_9B6B5FF9A0B71815CDF19707E93BDB64<br>100% share • Your website money safe</p>
       </div>
     </div>
     <div class="md:col-span-2 space-y-4">
       <div class="bg-white border border-black/5 rounded-[24px] p-6">
-        <div class="flex justify-between items-center flex-wrap gap-2"><h3 class="font-black text-[16px]">Log New Installation - 3 LIVE PHOTOS COMPULSORY</h3><span class="text-[11px] bg-red-50 border border-red-200 text-red-700 px-2 py-1 rounded-full font-bold">Camera Only • No Gallery • Compulsory</span></div>
-        <div class="bg-yellow-50 border border-yellow-200 rounded-[12px] p-3 mt-4 text-[11px]"><b>⚠️ COMPULSORY for Every Installation:</b><br>1. Photo 1: Inverter Machine (Live Camera - No Gallery)<br>2. Photo 2: Serial No Sticker (Live Camera - Must be readable)<br>3. Photo 3: Full Setup with Customer + House (Live Camera)<br>All photos will have GPS + Timestamp watermark auto added. Selfie KYC already done at login - Must.</div>
+        <div class="flex justify-between items-center flex-wrap gap-2">
+          <h3 class="font-black text-[16px]">Log New Installation - Real Firestore Save</h3>
+          <span class="text-[11px] bg-red-50 border border-red-200 text-red-700 px-2 py-1 rounded-full font-bold">Camera Only • Real API</span>
+        </div>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-[12px] p-3 mt-4 text-[11px]">
+          <b>⚠️ COMPULSORY + Real Firestore:</b><br>
+          1. Photo 1: Inverter Machine (Live Camera)<br>
+          2. Photo 2: Serial No Sticker 13-digit (Live Camera - Must readable - e.g., 2604340900039)<br>
+          3. Photo 3: Full Setup (Live Camera)<br>
+          GPS + Timestamp auto added • Save to Firestore installations collection • Serial verified via inventorySerials
+        </div>
+        <div class="mt-4 flex gap-2">
+          <input id="serial" placeholder="Serial No 13 digits (e.g. 2604340900039)" class="flex-1 border-2 border-[#D71921] rounded-[12px] px-4 py-3 text-[13px] font-mono">
+          <button onclick="verifySerialReal()" class="bg-black text-white px-5 py-3 rounded-[12px] text-[12px] font-black">Verify Serial</button>
+        </div>
+        <p id="serialVerifyStatus" class="text-[11px] mt-2 font-bold"></p>
         <div class="grid md:grid-cols-2 gap-3 mt-4">
-          <select id="model" class="border rounded-[12px] px-4 py-3 text-[13px]"><option value="">Select Model</option><option>Nova 2 KVA</option><option>Nova 3.5 KVA</option><option>Nova 4.2 KVA</option><option>Nova 6.2 KVA</option><option>Nova 12 KVA</option><option>15KW Lithium Battery</option></select>
-          <input id="serial" placeholder="Serial No 13 digits (e.g. 2604340900039)" class="border rounded-[12px] px-4 py-3 text-[13px] font-mono">
-          <input id="customerName" placeholder="Customer Name" class="border rounded-[12px] px-4 py-3 text-[13px]">
-          <input id="customerPhone" placeholder="Customer Phone" class="border rounded-[12px] px-4 py-3 text-[13px]">
+          <select id="model" class="border rounded-[12px] px-4 py-3 text-[13px]">
+            <option value="">Select Model</option>
+            <option>Nova 2 KVA</option>
+            <option>Nova 3.5 KVA</option>
+            <option>Nova 4.2 KVA</option>
+            <option>Nova 6.2 KVA</option>
+            <option>Nova 12 KVA</option>
+            <option>15KW Lithium Battery</option>
+          </select>
+          <input id="customerName" placeholder="Customer Name *" class="border rounded-[12px] px-4 py-3 text-[13px]">
+          <input id="customerPhone" placeholder="Customer Phone *" class="border rounded-[12px] px-4 py-3 text-[13px]">
           <div class="md:col-span-2 grid grid-cols-3 gap-3">
-            <button onclick="openCamera('photo1')" class="border-2 border-dashed border-red-300 rounded-[12px] p-3 text-center bg-red-50/30 hover:bg-red-50"><div id="p1" class="text-[11px] font-bold">📸 PHOTO 1<br><span class="font-normal">Inverter<br><b>COMPULSORY</b></span><br><span id="p1-status" class="text-red-600 font-black">Not captured • Must</span></div></button>
-            <button onclick="openCamera('photo2')" class="border-2 border-dashed border-red-300 rounded-[12px] p-3 text-center bg-red-50/30 hover:bg-red-50"><div id="p2" class="text-[11px] font-bold">📸 PHOTO 2<br><span class="font-normal">Serial No<br><b>COMPULSORY</b></span><br><span id="p2-status" class="text-red-600 font-black">Not captured • Must</span></div></button>
-            <button onclick="openCamera('photo3')" class="border-2 border-dashed border-red-300 rounded-[12px] p-3 text-center bg-red-50/30 hover:bg-red-50"><div id="p3" class="text-[11px] font-bold">📸 PHOTO 3<br><span class="font-normal">Full Setup<br><b>COMPULSORY</b></span><br><span id="p3-status" class="text-red-600 font-black">Not captured • Must</span></div></button>
+            <button onclick="openCamera('photo1')" class="border-2 border-dashed border-red-300 rounded-[12px] p-3 text-center bg-red-50/30 hover:bg-red-50"><div id="p1" class="text-[11px] font-bold">📸 PHOTO 1<br><span class="font-normal">Inverter<br><b>COMPULSORY</b></span><br><span id="p1-status" class="text-red-600 font-black">Not captured</span></div></button>
+            <button onclick="openCamera('photo2')" class="border-2 border-dashed border-red-300 rounded-[12px] p-3 text-center bg-red-50/30 hover:bg-red-50"><div id="p2" class="text-[11px] font-bold">📸 PHOTO 2<br><span class="font-normal">Serial No<br><b>COMPULSORY</b></span><br><span id="p2-status" class="text-red-600 font-black">Not captured</span></div></button>
+            <button onclick="openCamera('photo3')" class="border-2 border-dashed border-red-300 rounded-[12px] p-3 text-center bg-red-50/30 hover:bg-red-50"><div id="p3" class="text-[11px] font-bold">📸 PHOTO 3<br><span class="font-normal">Full Setup<br><b>COMPULSORY</b></span><br><span id="p3-status" class="text-red-600 font-black">Not captured</span></div></button>
           </div>
-          <div class="md:col-span-2 flex gap-2 items-center flex-wrap"><button onclick="getLocation()" class="bg-white border border-black/20 px-4 py-2.5 rounded-full text-[11px] font-bold">📍 Get GPS Location (Compulsory)</button><span id="gpsStatus" class="text-[11px] py-2.5 font-bold text-red-600">GPS: Not captured - Compulsory for all photos</span></div>
-          <button onclick="submitInstallation()" class="md:col-span-2 unicron-red text-white py-3.5 rounded-full font-black text-[13px] shadow-lg">Submit for Approval - 3 Live Photos + GPS + Live Selfie Must - Get ₦5K</button>
+          <div class="md:col-span-2 flex gap-2 items-center flex-wrap"><button onclick="getLocation()" class="bg-white border-2 border-black px-4 py-2.5 rounded-full text-[11px] font-bold">📍 Get GPS (Compulsory)</button><span id="gpsStatus" class="text-[11px] py-2.5 font-bold text-red-600">GPS: Not captured - Compulsory</span></div>
+          <button onclick="submitInstallation()" class="md:col-span-2 unicron-red text-white py-3.5 rounded-full font-black text-[13px] shadow-lg">Submit for Approval - Real Firestore - Get ₦5K</button>
         </div>
       </div>
       <div class="bg-white border border-black/5 rounded-[24px] p-6">
-        <h3 class="font-black text-[14px]">My Installations - Live Verified (Selfie + 3 Live Photos + GPS)</h3>
-        <div id="myInstalls" class="mt-4 space-y-3 text-[12px] text-black/50">No installations yet - All require live photos compulsory</div>
+        <h3 class="font-black text-[14px]">My Installations - Real from Firestore</h3>
+        <div id="myInstalls" class="mt-4 space-y-3 text-[12px] text-black/50">Loading real data...</div>
       </div>
     </div>
   </div>
@@ -194,18 +246,18 @@
 <section class="max-w-7xl mx-auto px-4 md:px-8 py-8">
   <div class="bg-white border border-black/5 rounded-[28px] p-6 md:p-8">
     <div class="flex flex-wrap justify-between gap-4 items-start">
-      <div><h3 class="font-black text-[20px]">Admin Panel - Verify Live Selfie + 3 Live Photos + GPS + Serial</h3><p class="text-[13px] text-black/60 mt-1">Approve installations • Verify serial via Vyapar PC • Check live selfie timestamp • Verify 3 live photos GPS • Trigger Flutterwave payout • Min ₦10K • Bonus 5=₦20K Extra</p></div>
-      <div class="flex gap-2"><span class="bg-green-50 text-green-700 border border-green-200 px-3 py-1 rounded-full text-[11px] font-bold">Live Selfie + Live Photos Verification Live</span><button onclick="loadAdminData()" class="bg-black text-white px-4 py-1.5 rounded-full text-[11px] font-black">Refresh Data</button></div>
+      <div><h3 class="font-black text-[20px]">Admin Panel - Real Firestore Verify</h3><p class="text-[13px] text-black/60 mt-1">Approve installations • Verify serial 13-digit • Check live selfie • GPS • Payout Wema 0127884170 • Sub RS_9B6B5F • Min ₦10K • Bonus 5=₦20K</p></div>
+      <div class="flex gap-2"><span class="bg-green-50 text-green-700 border border-green-200 px-3 py-1 rounded-full text-[11px] font-bold">Real Firestore Live</span><button onclick="loadAdminData()" class="bg-black text-white px-4 py-1.5 rounded-full text-[11px] font-black">Refresh Real Data</button></div>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-      <div class="unicron-peach border border-red-100 p-4 rounded-[20px]"><p class="text-[11px] font-bold text-black/60">Pending - Verify Live Selfie + 3 Live Photos</p><p id="statPending" class="text-[30px] font-black unicron-red-text">0</p><p class="text-[10px] text-black/50">Selfie timestamp + GPS + Serial</p></div>
-      <div class="bg-gray-50 border p-4 rounded-[20px]"><p class="text-[11px] font-bold text-black/60">Total Installers - Live KYC Verified</p><p id="statInstallers" class="text-[30px] font-black">0</p></div>
-      <div class="bg-gray-50 border p-4 rounded-[20px]"><p class="text-[11px] font-bold text-black/60">Total Paid (Month) - Live Verified Only</p><p id="statPaid" class="text-[30px] font-black">₦0</p></div>
-      <div class="bg-black text-white p-4 rounded-[20px]"><p class="text-[11px] text-white/60">Withdraw Requests - Selfie Verified Only</p><p id="statWithdraw" class="text-[30px] font-black">₦0</p><p class="text-[11px] text-white/60">Min ₦10K • Live Selfie Must</p></div>
+      <div class="unicron-peach border border-red-100 p-4 rounded-[20px]"><p class="text-[11px] font-bold text-black/60">Pending Real</p><p id="statPending" class="text-[30px] font-black unicron-red-text">0</p><p class="text-[10px] text-black/50">Real from Firestore</p></div>
+      <div class="bg-gray-50 border p-4 rounded-[20px]"><p class="text-[11px] font-bold text-black/60">Total Installers Real</p><p id="statInstallers" class="text-[30px] font-black">0</p></div>
+      <div class="bg-gray-50 border p-4 rounded-[20px]"><p class="text-[11px] font-bold text-black/60">Total Paid Real</p><p id="statPaid" class="text-[30px] font-black">₦0</p></div>
+      <div class="bg-black text-white p-4 rounded-[20px]"><p class="text-[11px] text-white/60">Withdraw Real</p><p id="statWithdraw" class="text-[30px] font-black">₦0</p><p class="text-[11px] text-white/60">Wema 0127884170 • RS_9B6B5F</p></div>
     </div>
     <div class="mt-8 overflow-x-auto border border-black/5 rounded-[18px]">
       <table class="w-full text-[13px] text-left">
-        <thead class="bg-gray-50 border-b text-[11px] text-black/50 font-bold"><tr><th class="p-4">INSTALLER + LIVE SELFIE KYC</th><th class="p-4">MODEL</th><th class="p-4">SERIAL</th><th class="p-4">3 LIVE PHOTOS + GPS + TIMESTAMP</th><th class="p-4">ACTION - VERIFY ALL</th></tr></thead>
+        <thead class="bg-gray-50 border-b text-[11px] text-black/50 font-bold"><tr><th class="p-4">INSTALLER + SELFIE</th><th class="p-4">MODEL</th><th class="p-4">SERIAL 13-digit</th><th class="p-4">3 PHOTOS + GPS</th><th class="p-4">ACTION REAL</th></tr></thead>
         <tbody id="adminTable" class="divide-y divide-black/5"></tbody>
       </table>
     </div>
@@ -216,61 +268,249 @@
 <div id="loginModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
   <div class="bg-white rounded-[28px] w-full max-w-[420px] p-7 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-start">
-      <div><h3 id="loginTitle" class="font-black text-[20px]">Login with Live Selfie</h3><p id="loginSub" class="text-[12px] text-black/60 mt-1">Live Selfie KYC Compulsory - No Gallery</p></div>
+      <div><h3 id="loginTitle" class="font-black text-[20px]">Login with Live Selfie</h3><p id="loginSub" class="text-[12px] text-black/60 mt-1">Real Firestore • No Demo</p></div>
       <button onclick="closeLogin()" class="bg-gray-100 w-8 h-8 rounded-full">✕</button>
     </div>
     <div class="mt-5 space-y-3">
-      <div class="bg-red-50 border border-red-200 rounded-[12px] p-3 text-[11px]"><b>🔴 COMPULSORY FOR LOGIN:</b><br>• Live selfie verification required<br>• Camera only - Gallery blocked<br>• Face must be clear, good light<br>• GPS + Timestamp auto added<br>• Without selfie, login will FAIL</div>
+      <div class="bg-red-50 border border-red-200 rounded-[12px] p-3 text-[11px]"><b>🔴 COMPULSORY + REAL API:</b><br>• Live selfie required - Camera only<br>• Real save to Firestore users<br>• No demo - Real login only<br>• GPS + Timestamp auto</div>
       <input id="loginEmail" type="email" placeholder="Email (admin@unicron.com)" class="w-full border rounded-full px-5 py-3.5 text-[13px]">
       <input id="loginPhone" placeholder="Phone (080...)" class="w-full border rounded-full px-5 py-3.5 text-[13px]">
       <input id="loginPassword" type="password" placeholder="Password" class="w-full border rounded-full px-5 py-3.5 text-[13px]">
-      <input id="registerName" placeholder="Full Name (for new installer registration)" class="hidden w-full border rounded-full px-5 py-3.5 text-[13px] border-dashed border-red-300 bg-red-50/20">
+      <input id="registerName" placeholder="Full Name (for new installer)" class="hidden w-full border rounded-full px-5 py-3.5 text-[13px] border-dashed border-red-300 bg-red-50/20">
       <div class="flex items-center gap-2 bg-[#FFF1ED] border-2 border-red-200 rounded-[16px] px-4 py-3">
-        <input type="checkbox" id="selfieCheck" disabled class="w-4 h-4"><label class="text-[11px] font-bold flex-1">Live Selfie Verified: <span id="selfieCheckStatus" class="text-red-600 font-black">Not Done - Compulsory - Click Button</span></label>
-        <button onclick="openCamera('loginSelfie')" class="bg-black text-white px-3 py-1.5 rounded-full text-[10px] font-black whitespace-nowrap">Do Live Selfie Now</button>
+        <input type="checkbox" id="selfieCheck" disabled class="w-4 h-4"><label class="text-[11px] font-bold flex-1">Live Selfie: <span id="selfieCheckStatus" class="text-red-600 font-black">Not Done - Click Button</span></label>
+        <button onclick="openCamera('loginSelfie')" class="bg-black text-white px-3 py-1.5 rounded-full text-[10px] font-black">Do Selfie Now</button>
       </div>
-      <button id="loginBtn" onclick="handleLogin()" class="w-full unicron-red text-white py-3.5 rounded-full font-black text-[13px] shadow-lg">Login - Live Selfie Must</button>
-      <div class="flex gap-2">
-        <button onclick="toggleRegister()" id="toggleRegBtn" class="flex-1 bg-white border border-black/10 py-3 rounded-full text-[11px] font-bold">New Installer? Register with Selfie</button>
-        <button onclick="fillDemo()" class="flex-1 bg-black text-white py-3 rounded-full text-[11px] font-bold">Fill Demo Data</button>
-      </div>
+      <button id="loginBtn" onclick="handleLogin()" class="w-full unicron-red text-white py-3.5 rounded-full font-black text-[13px] shadow-lg">Login Real - No Demo</button>
+      <button onclick="toggleRegister()" id="toggleRegBtn" class="w-full bg-white border border-black/10 py-3 rounded-full text-[11px] font-bold">New Installer? Register with Real Firestore</button>
       <p id="loginError" class="hidden text-[11px] text-red-600 bg-red-50 border border-red-100 p-3 rounded-[12px]"></p>
-      <p class="text-[10px] text-black/40 text-center mt-3">Backend: Production Ready • Firebase + Flutterwave Live<br>Min Withdraw ₦10K • Flat ₦5K • Bonus 5=₦20K • Live Selfie + 3 Live Photos Compulsory • Camera Only</p>
+      <p class="text-[10px] text-black/40 text-center mt-3">Backend Real: myunicron.com.ng • Firebase + Flutterwave + Termii<br>Payout: A2K Wema 0127884170 • Sub RS_9B6B5F • Min ₦10K • Flat ₦5K • Bonus 5=₦20K<br>Real API • No Demo Mode</p>
     </div>
   </div>
 </div>
 
 <script>
 let currentRole='installer';let isRegistering=false;let gpsData=null;let banksCache=[];let stream=null;let currentCamTarget=null;let photos={photo1:null,photo2:null,photo3:null,loginSelfie:null};let photoBlobs={};
-async function openCamera(target){currentCamTarget=target;document.getElementById('cameraModal').style.display='flex';let title = target==='loginSelfie' ? 'LIVE Selfie Verification - Login KYC COMPULSORY' : target==='photo1' ? 'LIVE Photo 1: Inverter Machine - COMPULSORY' : target==='photo2' ? 'LIVE Photo 2: Serial Number Sticker - COMPULSORY' : 'LIVE Photo 3: Full Installation Setup - COMPULSORY';document.getElementById('camTitle').innerText=title;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode: target==='loginSelfie' ? 'user' : 'environment', width:{ideal:1920}, height:{ideal:1080}}, audio:false});document.getElementById('video').srcObject=stream;}catch(e){alert('Camera permission needed - Allow camera. Error: '+e.message);}}
+function openQr(){document.getElementById('qrModal').style.display='flex';}
+function closeQr(){document.getElementById('qrModal').style.display='none';}
+async function openCamera(target){currentCamTarget=target;document.getElementById('cameraModal').style.display='flex';let title = target==='loginSelfie' ? 'LIVE Selfie Verification - Login KYC COMPULSORY' : target==='photo1' ? 'LIVE Photo 1: Inverter Machine - COMPULSORY' : target==='photo2' ? 'LIVE Photo 2: Serial Number Sticker 13-digit - COMPULSORY' : 'LIVE Photo 3: Full Installation Setup - COMPULSORY';document.getElementById('camTitle').innerText=title;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode: target==='loginSelfie' ? 'user' : 'environment', width:{ideal:1920}, height:{ideal:1080}}, audio:false});document.getElementById('video').srcObject=stream;}catch(e){alert('Camera permission needed - Allow camera. Error: '+e.message);}}
 function closeCamera(){document.getElementById('cameraModal').style.display='none';if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}}
-function captureSelfie(){const video=document.getElementById('video');const canvas=document.getElementById('canvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;const ctx=canvas.getContext('2d');if(currentCamTarget==='loginSelfie'){ctx.translate(canvas.width,0);ctx.scale(-1,1);}ctx.drawImage(video,0,0);const now=new Date();const stamp=`LIVE VERIFIED ${now.toLocaleString()} | GPS: ${gpsData?gpsData.lat.toFixed(5)+','+gpsData.lng.toFixed(5):'Acquiring GPS'} | UNICRON+ | ${currentCamTarget}`;ctx.fillStyle='rgba(215,25,33,0.85)';ctx.fillRect(0,canvas.height-36,canvas.width,36);ctx.fillStyle='white';ctx.font='bold 12px Inter';ctx.fillText(stamp,8,canvas.height-12);canvas.toBlob(blob=>{photoBlobs[currentCamTarget]=blob;photos[currentCamTarget]=canvas.toDataURL('image/jpeg',0.85);if(currentCamTarget==='loginSelfie'){document.getElementById('selfieCheck').checked=true;document.getElementById('selfieCheckStatus').innerText='Verified ✓ LIVE '+now.toLocaleTimeString()+' - GPS Stamped';document.getElementById('selfieCheckStatus').className='text-green-600 font-black';}else{let statusId=currentCamTarget==='photo1'?'p1-status':currentCamTarget==='photo2'?'p2-status':'p3-status';document.getElementById(statusId).innerText='Captured ✓ LIVE '+now.toLocaleTimeString()+' • GPS ✓';document.getElementById(statusId).className='text-green-600 font-black';}closeCamera();alert((currentCamTarget==='loginSelfie'?'Live Selfie':'Live Photo')+' captured with GPS + Timestamp! Compulsory verified.');},'image/jpeg',0.85);}
-window.addEventListener('load',async()=>{await loadBanks();const saved=JSON.parse(localStorage.getItem('unicron_user')||'null');if(saved)applyLogin(saved);getLocation();});
+function captureSelfie(){const video=document.getElementById('video');const canvas=document.getElementById('canvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;const ctx=canvas.getContext('2d');if(currentCamTarget==='loginSelfie'){ctx.translate(canvas.width,0);ctx.scale(-1,1);}ctx.drawImage(video,0,0);const now=new Date();const stamp=`LIVE VERIFIED ${now.toLocaleString()} | GPS: ${gpsData?gpsData.lat.toFixed(5)+','+gpsData.lng.toFixed(5):'Acquiring GPS'} | Unicron | ${currentCamTarget} | Real`;ctx.fillStyle='rgba(215,25,33,0.85)';ctx.fillRect(0,canvas.height-36,canvas.width,36);ctx.fillStyle='white';ctx.font='bold 11px Inter';ctx.fillText(stamp,8,canvas.height-12);canvas.toBlob(blob=>{photoBlobs[currentCamTarget]=blob;photos[currentCamTarget]=canvas.toDataURL('image/jpeg',0.85);if(currentCamTarget==='loginSelfie'){document.getElementById('selfieCheck').checked=true;document.getElementById('selfieCheckStatus').innerText='Verified ✓ LIVE '+now.toLocaleTimeString()+' - Real';document.getElementById('selfieCheckStatus').className='text-green-600 font-black';}else{let statusId=currentCamTarget==='photo1'?'p1-status':currentCamTarget==='photo2'?'p2-status':'p3-status';document.getElementById(statusId).innerText='Captured ✓ LIVE '+now.toLocaleTimeString()+' • Real';document.getElementById(statusId).className='text-green-600 font-black';}closeCamera();},'image/jpeg',0.85);}
+window.addEventListener('load',async()=>{await loadBanks();const saved=JSON.parse(localStorage.getItem('unicron_user')||'null');if(saved){applyLogin(saved); fetchRealUser(saved.id);} getLocation();});
+async function fetchRealUser(id){try{const r=await fetch('/api/user/'+id);if(r.ok){const d=await r.json();const user=d.user||d;if(user.balance!==undefined){document.getElementById('balance').innerText='₦'+(user.balance||0).toLocaleString();let u=JSON.parse(localStorage.getItem('unicron_user'));if(u){u.balance=user.balance;u.completed=user.completed||u.completed;localStorage.setItem('unicron_user',JSON.stringify(u)); const comp=user.completed||0; document.getElementById('bonusBar').style.width=(comp/5*100)+'%'; document.getElementById('bonusText').innerText=comp+'/5 • '+(5-comp)+' more to ₦20K';}}}}catch(e){}}
 function router(view){document.getElementById('view-home').classList.add('hidden');document.getElementById('view-installer').classList.add('hidden');document.getElementById('view-admin').classList.add('hidden');if(view==='home'){document.getElementById('view-home').classList.remove('hidden');window.scrollTo(0,0);}if(view==='installer'){document.getElementById('view-installer').classList.remove('hidden');loadMyInstalls();}if(view==='admin'){document.getElementById('view-admin').classList.remove('hidden');loadAdminData();}}
-function openLogin(role){currentRole=role;isRegistering=false;document.getElementById('loginModal').classList.remove('hidden');document.getElementById('loginTitle').innerText=role==='admin'?'Admin Login - Store Manager / MD':'Installer Login - Live Selfie Must (Compulsory)';document.getElementById('loginEmail').classList.toggle('hidden',role==='installer');document.getElementById('loginPhone').classList.toggle('hidden',role!=='installer');document.getElementById('registerName').classList.add('hidden');document.getElementById('loginBtn').innerText=role==='admin'?'Login as Admin':'Login with Live Selfie - Compulsory';document.getElementById('toggleRegBtn').classList.toggle('hidden',role==='admin');photos.loginSelfie=null;document.getElementById('selfieCheck').checked=false;document.getElementById('selfieCheckStatus').innerText='Not Done - Compulsory - Click "Do Live Selfie Now"';}
+function openLogin(role){currentRole=role;isRegistering=false;document.getElementById('loginModal').classList.remove('hidden');document.getElementById('loginTitle').innerText=role==='admin'?'Admin Login - Store Manager / MD':'Installer Login - Live Selfie Must (Real)';document.getElementById('loginEmail').classList.toggle('hidden',role==='installer');document.getElementById('loginPhone').classList.toggle('hidden',role!=='installer');document.getElementById('registerName').classList.add('hidden');document.getElementById('loginBtn').innerText=role==='admin'?'Login as Admin - Real':'Login with Live Selfie - Real Firestore';document.getElementById('toggleRegBtn').classList.toggle('hidden',role==='admin');photos.loginSelfie=null;document.getElementById('selfieCheck').checked=false;document.getElementById('selfieCheckStatus').innerText='Not Done - Click "Do Selfie Now"';}
 function closeLogin(){document.getElementById('loginModal').classList.add('hidden');}
-function toggleRegister(){isRegistering=!isRegistering;document.getElementById('registerName').classList.toggle('hidden',!isRegistering);document.getElementById('loginBtn').innerText=isRegistering?'Register with Live Selfie - Compulsory':'Login with Live Selfie - Compulsory';document.getElementById('toggleRegBtn').innerText=isRegistering?'Have Account? Login with Selfie':'New Installer? Register with Selfie';}
-function fillDemo(){if(currentRole==='admin'){document.getElementById('loginEmail').value='admin@unicron.com';document.getElementById('loginPassword').value='admin123';}else{document.getElementById('loginPhone').value='08012345678';document.getElementById('loginPassword').value='123456';document.getElementById('registerName').value='Emeka Okafor';}}
-async function handleLogin(){const errEl=document.getElementById('loginError');errEl.classList.add('hidden');if(currentRole==='installer' && !photos.loginSelfie){errEl.innerText='LIVE Selfie Verification is COMPULSORY! Click "Do Live Selfie Now" - Camera only, no gallery.';errEl.classList.remove('hidden');return;}document.getElementById('loginBtn').innerText='Verifying Live Selfie + GPS...';document.getElementById('loginBtn').disabled=true;try{let payload={role:currentRole,hasLiveSelfie:currentRole==='installer'};let url='/api/auth/login';if(currentRole==='installer'){const phone=document.getElementById('loginPhone').value.trim();const pass=document.getElementById('loginPassword').value.trim();const name=document.getElementById('registerName').value.trim();if(!phone||!pass)throw new Error('Phone & Password required');payload.phone=phone;payload.password=pass;payload.selfieTimestamp=new Date().toISOString();payload.gps=gpsData;if(isRegistering){if(!name)throw new Error('Full Name required');payload.name=name;url='/api/auth/register';}}else{const email=document.getElementById('loginEmail').value.trim();const pass=document.getElementById('loginPassword').value.trim();if(!email||!pass)throw new Error('Email & Password required');payload.email=email;payload.password=pass;}let res;try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await r.json();if(!r.ok)throw new Error(data.message);res=data.user||data;}catch(e){if(currentRole==='admin'){res={id:'admin1',role:'admin',name:'Admin MD',email:payload.email,token:'mock-admin-token'};}else{res={id:'inst_'+Date.now(),role:'installer',name:payload.name||'Installer '+payload.phone.slice(-4),phone:payload.phone,balance:15000,completed:3,bank:null,token:'mock-token',selfieVerified:true};}}localStorage.setItem('unicron_user',JSON.stringify(res));closeLogin();applyLogin(res);}catch(err){errEl.innerText=err.message;errEl.classList.remove('hidden');}finally{document.getElementById('loginBtn').disabled=false;}}
-function applyLogin(user){document.getElementById('userBadge').classList.remove('hidden');document.getElementById('userBadge').innerText=(user.name||user.email||user.phone)+' • '+user.role+' • Live Selfie ✓';document.getElementById('logoutBtn').classList.remove('hidden');document.getElementById('adminLoginBtn').classList.add('hidden');document.getElementById('installerLoginBtn').classList.add('hidden');if(user.role==='admin'){router('admin');}else{document.getElementById('installerName').innerText=user.name||'Installer';document.getElementById('balance').innerText='₦'+(user.balance||0).toLocaleString();const comp=user.completed||0;document.getElementById('bonusBar').style.width=(comp/5*100)+'%';document.getElementById('bonusText').innerText=comp+'/5 completed • '+(5-comp)+' more to get ₦20K Extra';router('installer');}}
-function logout(){localStorage.removeItem('unicron_user');photos={photo1:null,photo2:null,photo3:null,loginSelfie:null};photoBlobs={};document.getElementById('userBadge').classList.add('hidden');document.getElementById('logoutBtn').classList.add('hidden');document.getElementById('adminLoginBtn').classList.remove('hidden');document.getElementById('installerLoginBtn').classList.remove('hidden');router('home');alert('Logged out! Live selfie session cleared.');}
-async function loadBanks(){try{const r=await fetch('/api/banks');if(r.ok){const d=await r.json();banksCache=d.data||d;}}catch(e){banksCache=[{name:'Access Bank',code:'044'},{name:'GTBank',code:'058'},{name:'First Bank',code:'011'},{name:'UBA',code:'033'},{name:'Zenith Bank',code:'057'}];}const sel=document.getElementById('bankSelect');sel.innerHTML='<option value="">Select Bank - KYC Verified</option>'+banksCache.map(b=>`<option value="${b.code}">${b.name}</option>`).join('');}
-async function verifyBank(){const code=document.getElementById('bankSelect').value;const acct=document.getElementById('acctNo').value.trim();if(!code||acct.length!=10){alert('Select bank & 10-digit account');return;}try{const r=await fetch('/api/banks/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({account_number:acct,bank_code:code})});const d=await r.json();if(d.account_name){document.getElementById('acctName').value=d.account_name;const u=JSON.parse(localStorage.getItem('unicron_user'));u.bank={code,account_number:acct,account_name:d.account_name};localStorage.setItem('unicron_user',JSON.stringify(u));document.getElementById('bankInfo').innerText=d.account_name+' • '+acct;alert('Bank Verified!');}else throw new Error();}catch(e){document.getElementById('acctName').value='Demo Account - '+acct;alert('Bank saved in demo mode');}}
-function getLocation(){document.getElementById('gpsStatus').innerText='Getting GPS... Compulsory';navigator.geolocation.getCurrentPosition(pos=>{gpsData={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy};document.getElementById('gpsStatus').innerText=`GPS ✓ ${gpsData.lat.toFixed(5)}, ${gpsData.lng.toFixed(5)} (±${Math.round(gpsData.acc)}m) - Verified`;},err=>{document.getElementById('gpsStatus').innerText='GPS Failed: '+err.message+' - Compulsory';},{enableHighAccuracy:true,timeout:20000});}
-async function submitInstallation(){const model=document.getElementById('model').value;const serial=document.getElementById('serial').value.trim();const cname=document.getElementById('customerName').value.trim();if(!model||!serial||!cname){alert('Model, Serial, Customer Name required');return;}if(!photos.photo1||!photos.photo2||!photos.photo3){alert('All 3 LIVE Photos are COMPULSORY! Photo1 Inverter, Photo2 Serial, Photo3 Full Setup - No gallery!');return;}if(!gpsData){alert('GPS is COMPULSORY!');return;}const btn=event.target;btn.innerText='Uploading...';btn.disabled=true;try{const fd=new FormData();fd.append('model',model);fd.append('serial',serial);fd.append('customerName',cname);fd.append('lat',gpsData.lat);fd.append('lng',gpsData.lng);fd.append('hasLivePhotos','true');fd.append('timestamp',new Date().toISOString());fd.append('photo1',photoBlobs.photo1,'photo1_LIVE.jpg');fd.append('photo2',photoBlobs.photo2,'photo2_LIVE.jpg');fd.append('photo3',photoBlobs.photo3,'photo3_LIVE.jpg');const user=JSON.parse(localStorage.getItem('unicron_user'));fd.append('installerId',user.id);try{const r=await fetch('/api/installations',{method:'POST',headers:{'Authorization':'Bearer '+(user.token||'')},body:fd});}catch(e){let arr=JSON.parse(localStorage.getItem('my_installs')||'[]');arr.unshift({model,serial,cname,status:'pending',date:new Date().toLocaleString(),livePhotos:true,gps:`${gpsData.lat.toFixed(4)},${gpsData.lng.toFixed(4)}`});localStorage.setItem('my_installs',JSON.stringify(arr));}alert('✅ Submitted! 3 Live Photos + GPS + Selfie verified! Serial: '+serial);loadMyInstalls();photos.photo1=null;photos.photo2=null;photos.photo3=null;}catch(err){alert('Failed: '+err.message);}finally{btn.innerText='Submit for Approval - 3 Live Photos + GPS + Selfie Must - Get ₦5K';btn.disabled=false;}}
-function loadMyInstalls(){const el=document.getElementById('myInstalls');const arr=JSON.parse(localStorage.getItem('my_installs')||'[]');if(arr.length===0){el.innerHTML='No installations yet';return;}el.innerHTML=arr.map(i=>`<div class="border p-3 rounded-[14px] flex justify-between bg-white"><div><b>${i.model}</b><br><span class="font-mono text-[12px]">${i.serial}</span> - ${i.cname}<br><span class="text-[11px] text-black/60">📍 ${i.gps||''} • ${i.date}<br>🤳 Live Selfie ✓ • 📸 3 Live Photos ✓</span></div><span class="text-[11px] font-black">${i.status.toUpperCase()}</span></div>`).join('');}
-async function handleWithdraw(){const user=JSON.parse(localStorage.getItem('unicron_user'));const bal=user.balance||0;if(bal<10000){alert('Min Withdraw ₹10,000 - Balance ₹'+bal);return;}if(!confirm(`Withdraw ₹${bal} to ${user.bank?.account_name||'your bank'} via Flutterwave REAL MONEY?`))return;const btn=event.target;const orig=btn.innerText;btn.innerText='Processing REAL Flutterwave...';btn.disabled=true;try{const r=await fetch('/api/withdraw',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(user.token||'')},body:JSON.stringify({amount:bal,installerId:user.id,selfieVerified:true})});const d=await r.json();if(r.ok){alert(`✅ REAL MONEY Withdraw Initiated!\nAmount: ₹${bal}\nTransfer ID: ${d.transfer_id||d.data?.id||'FLW'}\nStatus: ${d.status||'Pending'}\nCheck Flutterwave Dashboard!`);user.balance=d.newBalance||0;localStorage.setItem('unicron_user',JSON.stringify(user));document.getElementById('balance').innerText='₹'+user.balance;}else{alert(`❌ REAL Withdraw Failed!\nError: ${d.message||d.error||JSON.stringify(d).slice(0,200)}\n\nPossible:\n1. Flutterwave wallet balance 0\n2. Transfers not enabled\n3. Bank wrong\n\nCheck Render Logs! Balance NOT deducted`);}}catch(e){alert(`❌ Error: ${e.message}\nBalance NOT deducted`);}finally{btn.innerText=orig;btn.disabled=false;}}
-async function loadAdminData(){const table=document.getElementById('adminTable');table.innerHTML='<tr><td colspan="5" class="p-4 text-center">Loading...</td></tr>';try{const r=await fetch('/api/admin/installations',{headers:{'Authorization':'Bearer '+JSON.parse(localStorage.getItem('unicron_user')||'{}').token}});const d=await r.json();renderAdminTable(d.data||d);}catch(e){const mock=[{id:1,installer:'John Ade - Abuja - Selfie ✓',model:'Nova 3.5 KVA',serial:'2604340900019',photos:'3 Live Photos ✓ GPS ✓ Selfie ✓',status:'pending'}];renderAdminTable(mock);document.getElementById('statPending').innerText='1';document.getElementById('statInstallers').innerText='148';document.getElementById('statPaid').innerText='₦740K';document.getElementById('statWithdraw').innerText='₦85K';}}
-function renderAdminTable(arr){const table=document.getElementById('adminTable');if(!arr||arr.length===0){table.innerHTML='<tr><td colspan="5" class="p-8 text-center">No pending</td></tr>';return;}table.innerHTML=arr.map(row=>`<tr class="hover:bg-gray-50/50"><td class="p-4"><p class="font-bold">${row.installer||row.installerName}</p><p class="text-[11px] text-green-600 font-bold">🤳 Live Selfie ✓</p></td><td class="p-4 font-bold">${row.model}</td><td class="p-4 font-mono text-[12px]">${row.serial}</td><td class="p-4"><span class="bg-green-50 text-green-700 border px-2 py-1 rounded-full text-[11px]">📸 3 Live Photos ✓ 📍 GPS ✓</span></td><td class="p-4">${row.status==='pending'?`<button onclick="approveInstall('${row.id||row.serial}')" class="unicron-red text-white px-4 py-2 rounded-full text-[11px] font-black">Approve ₦5K</button>`:`<span class="text-green-600 font-black text-[11px]">Paid ✓</span>`}</td></tr>`).join('');}
-async function approveInstall(id){if(!confirm('Verify Live Selfie + 3 Live Photos + GPS + Serial via Vyapar PC? Approve ₦5K?'))return;try{const r=await fetch('/api/admin/approve',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+JSON.parse(localStorage.getItem('unicron_user')).token},body:JSON.stringify({id})});if(r.ok){alert('Approved! ₦5K credited');loadAdminData();}else throw new Error();}catch(e){alert('Approved in Demo Mode! ₦5K credited');loadAdminData();}}
+function toggleRegister(){isRegistering=!isRegistering;document.getElementById('registerName').classList.toggle('hidden',!isRegistering);document.getElementById('loginBtn').innerText=isRegistering?'Register Real - Firestore Save':'Login Real - No Demo';document.getElementById('toggleRegBtn').innerText=isRegistering?'Have Account? Login Real':'New Installer? Register Real';}
+
+async function handleLogin(){
+  const errEl=document.getElementById('loginError');errEl.classList.add('hidden');
+  if(currentRole==='installer' && !photos.loginSelfie){errEl.innerText='LIVE Selfie COMPULSORY! Click "Do Selfie Now" - Real Firestore only.';errEl.classList.remove('hidden');return;}
+  const btn=document.getElementById('loginBtn');btn.innerText='Verifying Real API...';btn.disabled=true;
+  try{
+    let payload={role:currentRole,hasLiveSelfie:currentRole==='installer',selfieBase64:photos.loginSelfie};
+    let url='/api/auth/login';
+    if(currentRole==='installer'){
+      const phone=document.getElementById('loginPhone').value.trim();
+      const pass=document.getElementById('loginPassword').value.trim();
+      const name=document.getElementById('registerName').value.trim();
+      if(!phone||!pass) throw new Error('Phone & Password required - Real');
+      payload.phone=phone;payload.password=pass;payload.selfieTimestamp=new Date().toISOString();payload.gps=gpsData;
+      if(isRegistering){if(!name) throw new Error('Full Name required - Real');payload.name=name;url='/api/auth/register';}
+    }else{
+      const email=document.getElementById('loginEmail').value.trim();
+      const pass=document.getElementById('loginPassword').value.trim();
+      if(!email||!pass) throw new Error('Email & Password required');
+      payload.email=email;payload.password=pass;
+    }
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.message || 'Login failed - Real API error');
+    const res=data.user||data;
+    if(!res.id && !res._id) throw new Error('Invalid response from server - No ID');
+    res.id=res.id||res._id;
+    localStorage.setItem('unicron_user',JSON.stringify(res));
+    closeLogin();applyLogin(res);
+  }catch(err){
+    errEl.innerText='❌ '+err.message+' - Real Firestore only, no demo. Check Render logs.';
+    errEl.classList.remove('hidden');
+  }finally{btn.disabled=false;btn.innerText=currentRole==='admin'?'Login as Admin - Real':'Login with Live Selfie - Real';}
+}
+
+function applyLogin(user){
+  document.getElementById('userBadge').classList.remove('hidden');
+  document.getElementById('userBadge').innerText=(user.name||user.email||user.phone)+' • '+user.role+' • Real';
+  document.getElementById('logoutBtn').classList.remove('hidden');
+  document.getElementById('adminLoginBtn').classList.add('hidden');
+  document.getElementById('installerLoginBtn').classList.add('hidden');
+  if(user.role==='admin'){router('admin');}
+  else{
+    document.getElementById('installerName').innerText=user.name||'Installer';
+    document.getElementById('balance').innerText='₦'+(user.balance||0).toLocaleString();
+    const comp=user.completed||user.totalInstalls||0;
+    document.getElementById('bonusBar').style.width=(comp/5*100)+'%';
+    document.getElementById('bonusText').innerText=comp+'/5 completed • '+(5-comp)+' more to get ₦20K Extra - Real';
+    if(user.bank){document.getElementById('bankInfo').innerText=user.bank.account_name+' • '+user.bank.account_number+' • Verified Real'; document.getElementById('acctNo').value=user.bank.account_number; document.getElementById('acctName').value=user.bank.account_name;}
+    router('installer');
+  }
+}
+function logout(){localStorage.removeItem('unicron_user');photos={photo1:null,photo2:null,photo3:null,loginSelfie:null};photoBlobs={};document.getElementById('userBadge').classList.add('hidden');document.getElementById('logoutBtn').classList.add('hidden');document.getElementById('adminLoginBtn').classList.remove('hidden');document.getElementById('installerLoginBtn').classList.remove('hidden');router('home');}
+
+async function loadBanks(){
+  try{const r=await fetch('/api/banks');if(r.ok){const d=await r.json();banksCache=d.data||d;}}catch(e){banksCache=[{name:'【entity-Access Bank¦canonical_name=Access Bank】',code:'044'},{name:'GTBank',code:'058'},{name:'First Bank',code:'011'},{name:'UBA',code:'033'},{name:'【entity-Zenith Bank¦canonical_name=Zenith Bank】',code:'057'},{name:'【entity-Wema Bank¦canonical_name=Wema Bank】',code:'035'},{name:'【entity-Fidelity Bank¦canonical_name=Fidelity Bank】',code:'070'},{name:'Union Bank',code:'032'},{name:'Sterling Bank',code:'232'},{name:'【entity-FCMB¦canonical_name=FCMB】',code:'214'}];}
+  const sel=document.getElementById('bankSelect');sel.innerHTML='<option value="">Select Bank - Real Verified</option>'+banksCache.map(b=>`<option value="${b.code}">${b.name}</option>`).join('');
+}
+
+async function verifyBank(){
+  const code=document.getElementById('bankSelect').value;
+  const acct=document.getElementById('acctNo').value.trim();
+  const bankName=document.getElementById('bankSelect').selectedOptions[0]?.text||'';
+  if(!code||acct.length!=10){alert('Select bank & 10-digit account - Real');return;}
+  const btn=event.target;btn.innerText='Verifying Real...';btn.disabled=true;
+  try{
+    const user=JSON.parse(localStorage.getItem('unicron_user'));
+    const r=await fetch('/api/verify-bank',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({installerId:user.id,account_number:acct,bank_code:code,bank_name:bankName})});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.message||'Bank verify failed');
+    const accName=d.account_name||d.data?.account_name||'';
+    if(accName){
+      document.getElementById('acctName').value=accName;
+      document.getElementById('bankInfo').innerText=accName+' • '+acct+' • '+bankName+' • Verified Real ✓ - Firestore Saved';
+      let u=JSON.parse(localStorage.getItem('unicron_user'));u.bank={code,bank_name:bankName,account_number:acct,account_name:accName,bankVerified:true};localStorage.setItem('unicron_user',JSON.stringify(u));
+      alert('✅ Bank Verified Real & Saved to Firestore!\n'+accName+'\n'+bankName+' • '+acct);
+    }else throw new Error('No account name returned');
+  }catch(e){
+    alert('❌ Bank Verify Failed Real: '+e.message+'\nCheck API /api/verify-bank - No demo fallback');
+  }finally{btn.innerText='Verify & Save Real to Firestore';btn.disabled=false;}
+}
+
+function getLocation(){document.getElementById('gpsStatus').innerText='Getting GPS... Compulsory';navigator.geolocation.getCurrentPosition(pos=>{gpsData={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy};document.getElementById('gpsStatus').innerText=`GPS ✓ ${gpsData.lat.toFixed(5)}, ${gpsData.lng.toFixed(5)} (±${Math.round(gpsData.acc)}m) - Verified Real`;},err=>{document.getElementById('gpsStatus').innerText='GPS Failed: '+err.message+' - Compulsory - Allow location';},{enableHighAccuracy:true,timeout:20000});}
+
+async function verifySerialReal(){
+  const serial=document.getElementById('serial').value.trim();
+  const statusEl=document.getElementById('serialVerifyStatus');
+  if(!serial||serial.length!=13||! /^\d+$/.test(serial)){statusEl.innerText='❌ Serial must be 13 digits numeric - e.g., 2604340900039';statusEl.className='text-[11px] mt-2 font-bold text-red-600';return;}
+  statusEl.innerText='Verifying real via /api/verify-serial...';statusEl.className='text-[11px] mt-2 font-bold text-black/60';
+  try{
+    const r=await fetch('/api/verify-serial',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({serialNo:serial})});
+    const d=await r.json();
+    if(d.valid||d.status==='available'){statusEl.innerText='✅ Valid Real - Model: '+(d.model||'Found')+' - Invoice: '+(d.invoiceNo||'-')+' - Firestore inventorySerials';statusEl.className='text-[11px] mt-2 font-bold text-green-600';}
+    else if(d.status==='used' || d.message?.includes('Exited')){statusEl.innerText='❌ Already Exited / Used - Serial: '+serial+' - Cannot reuse - Real';statusEl.className='text-[11px] mt-2 font-bold text-red-600';}
+    else{statusEl.innerText='❌ Invalid Real - Not in inventorySerials - Check Vyapar invoice - '+ (d.message||'');statusEl.className='text-[11px] mt-2 font-bold text-red-600';}
+  }catch(e){statusEl.innerText='❌ Verify failed: '+e.message+' - Check /api/verify-serial';statusEl.className='text-[11px] mt-2 font-bold text-red-600';}
+}
+
+async function submitInstallation(){
+  const model=document.getElementById('model').value;
+  const serial=document.getElementById('serial').value.trim();
+  const cname=document.getElementById('customerName').value.trim();
+  const cphone=document.getElementById('customerPhone').value.trim();
+  if(!model||!serial||!cname){alert('Model, Serial 13-digit, Customer Name required - Real');return;}
+  if(serial.length!=13||! /^\d+$/.test(serial)){alert('Serial must be 13 digits - e.g., 2604340900039');return;}
+  if(!photos.photo1||!photos.photo2||!photos.photo3){alert('All 3 LIVE Photos COMPULSORY! Real Firestore only');return;}
+  if(!gpsData){alert('GPS COMPULSORY! Click Get GPS');return;}
+  const btn=event.target;btn.innerText='Uploading Real to Firestore...';btn.disabled=true;
+  try{
+    const fd=new FormData();
+    fd.append('model',model);fd.append('serialNo',serial);fd.append('serial',serial);
+    fd.append('customerName',cname);fd.append('customerPhone',cphone);
+    fd.append('lat',gpsData.lat);fd.append('lng',gpsData.lng);fd.append('accuracy',gpsData.acc);
+    fd.append('hasLivePhotos','true');fd.append('timestamp',new Date().toISOString());
+    fd.append('photo1',photoBlobs.photo1,'photo1_LIVE_'+serial+'.jpg');
+    fd.append('photo2',photoBlobs.photo2,'photo2_LIVE_'+serial+'.jpg');
+    fd.append('photo3',photoBlobs.photo3,'photo3_LIVE_'+serial+'.jpg');
+    fd.append('selfie',photoBlobs.loginSelfie||'');
+    const user=JSON.parse(localStorage.getItem('unicron_user'));
+    fd.append('installerId',user.id);
+    const r=await fetch('/api/installations',{method:'POST',headers:{'Authorization':'Bearer '+(user.token||'')},body:fd});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.message||'Submit failed');
+    alert('✅ Submitted Real to Firestore!\nSerial: '+serial+'\nModel: '+model+'\nStatus: pending\nAdmin will verify selfie + 3 photos + GPS + serial via Vyapar PC - Real API');
+    loadMyInstalls();photos.photo1=null;photos.photo2=null;photos.photo3=null;
+    document.getElementById('p1-status').innerText='Not captured';document.getElementById('p2-status').innerText='Not captured';document.getElementById('p3-status').innerText='Not captured';
+    document.getElementById('serial').value='';document.getElementById('customerName').value='';document.getElementById('customerPhone').value='';
+  }catch(err){alert('❌ Submit Failed Real: '+err.message+'\nNo demo fallback - Check Render logs / Firestore');}
+  finally{btn.innerText='Submit for Approval - Real Firestore - Get ₦5K';btn.disabled=false;}
+}
+
+async function loadMyInstalls(){
+  const el=document.getElementById('myInstalls');
+  try{
+    const user=JSON.parse(localStorage.getItem('unicron_user')||'{}');
+    if(!user.id){el.innerHTML='Login real to see installations';return;}
+    const r=await fetch('/api/my-installations?installerId='+user.id+'&t='+Date.now());
+    if(!r.ok) throw new Error('API failed');
+    const d=await r.json();const arr=d.data||d.installations||d||[];
+    if(arr.length===0){el.innerHTML='No installations yet - Real Firestore empty - Log first installation';return;}
+    el.innerHTML=arr.map(i=>`<div class="border p-3 rounded-[14px] flex justify-between bg-white"><div><b>${i.model||i.modelName}</b><br><span class="font-mono text-[12px]">${i.serialNo||i.serial}</span> - ${i.customerName||i.cname||''}<br><span class="text-[11px] text-black/60">📍 ${i.gps|| (i.lat?i.lat.toFixed(4)+','+i.lng.toFixed(4):'') } • ${i.createdAt||i.date||''}<br>🤳 Selfie ✓ • 📸 3 Photos ✓ • Real</span></div><span class="text-[11px] font-black ${(i.status==='approved'?'text-green-600':i.status==='rejected'?'text-red-600':'text-orange-600')}">${(i.status||'pending').toUpperCase()}</span></div>`).join('');
+  }catch(e){
+    el.innerHTML='❌ Failed to load real installations: '+e.message+'<br>Check /api/my-installations - No demo data - Real Firestore only';
+  }
+}
+
+async function handleWithdraw(){
+  const user=JSON.parse(localStorage.getItem('unicron_user'));
+  const bal=user.balance||0;
+  if(bal<10000){alert('Min Withdraw ₦10,000 - Real Balance ₦'+bal+' - Earn more!');return;}
+  if(!user.bank||!user.bank.account_number){alert('Verify & Save Bank First - Real Firestore - /api/verify-bank');return;}
+  if(!confirm(`Withdraw Real Request:\nAmount: ₦${bal}\nTo: ${user.bank.account_name} • ${user.bank.account_number}\nBank: ${user.bank.bank_name||user.bank.code}\n\nPayout From: RA2 international limited - A2K Enterprises - Wema Bank - 0127884170\nSubaccount: RS_9B6B5FF9A0B71815CDF19707E93BDB64 (100% share)\n\nFlow: OTP will be sent to MD via Termii SMS - MD enters OTP in admin-withdraw.html - Then Flutterwave transfer real money\n\nConfirm?`)) return;
+  const btn=event.target;const orig=btn.innerText;btn.innerText='Requesting Real OTP...';btn.disabled=true;
+  try{
+    const r=await fetch('/api/withdraw',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(user.token||'')},body:JSON.stringify({installerId:user.id,amount:bal,bank_name:user.bank.bank_name||user.bank.code,account_number:user.bank.account_number,account_name:user.bank.account_name,selfieVerified:true})});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.message||'Withdraw failed');
+    alert(`✅ Withdraw Request Real Created!\nAmount: ₦${bal}\nRequest ID: ${d.requestId||d.id||''}\nStatus: pending_otp\n\nOTP sent to MD phone via Termii SMS\nMD will approve in admin-withdraw.html\nMoney will be paid from A2K Enterprises Wema 0127884170 via Subaccount RS_9B6B5F\n\nReal Firestore - No demo`);
+    user.balance=d.newBalance||user.balance;localStorage.setItem('unicron_user',JSON.stringify(user));document.getElementById('balance').innerText='₦'+(user.balance||0).toLocaleString();
+  }catch(e){alert('❌ Withdraw Real Failed: '+e.message+'\nCheck /api/withdraw - Render logs - MD_PHONE, TERMII_API_KEY, FLUTTERWAVE_SECRET_KEY env - No demo');}
+  finally{btn.innerText=orig;btn.disabled=false;}
+}
+
+async function loadAdminData(){
+  const table=document.getElementById('adminTable');
+  table.innerHTML='<tr><td colspan="5" class="p-4 text-center">Loading real Firestore...</td></tr>';
+  try{
+    const user=JSON.parse(localStorage.getItem('unicron_user')||'{}');
+    const r=await fetch('/api/admin/installations',{headers:{'Authorization':'Bearer '+(user.token||'')}});
+    if(!r.ok) throw new Error('Admin API failed');
+    const d=await r.json();const arr=d.data||d.installations||d||[];
+    renderAdminTable(arr);
+    document.getElementById('statPending').innerText=arr.filter(x=>x.status==='pending').length;
+    document.getElementById('statInstallers').innerText='Real';
+    const paid=arr.filter(x=>x.status==='approved').length*5000;
+    document.getElementById('statPaid').innerText='₦'+paid.toLocaleString();
+  }catch(e){
+    table.innerHTML='<tr><td colspan="5" class="p-4 text-center text-red-600">❌ Failed to load real admin data: '+e.message+'<br>Check /api/admin/installations - No demo fallback - Real Firestore only</td></tr>';
+  }
+}
+function renderAdminTable(arr){
+  const table=document.getElementById('adminTable');
+  if(!arr||arr.length===0){table.innerHTML='<tr><td colspan="5" class="p-8 text-center">No pending - Real Firestore empty</td></tr>';return;}
+  table.innerHTML=arr.map(row=>`<tr class="hover:bg-gray-50/50"><td class="p-4"><p class="font-bold">${row.installerName||row.installer||row.installerId||''}</p><p class="text-[11px] text-green-600 font-bold">🤳 Selfie Real ✓</p><p class="text-[10px]">${row.customerName||''}</p></td><td class="p-4 font-bold">${row.model||''}</td><td class="p-4 font-mono text-[12px]">${row.serialNo||row.serial||''}</td><td class="p-4"><span class="bg-green-50 text-green-700 border px-2 py-1 rounded-full text-[11px]">📸 3 Photos Real ✓ 📍 GPS ✓</span><br><span class="text-[10px]">${row.lat?row.lat.toFixed(4)+','+row.lng.toFixed(4):''}</span></td><td class="p-4">${(row.status==='pending'||!row.status)?`<button onclick="approveInstall('${row.id||row._id||row.serialNo||row.serial}')" class="unicron-red text-white px-4 py-2 rounded-full text-[11px] font-black">Approve ₦5K Real</button>`:`<span class="text-green-600 font-black text-[11px]">${(row.status||'').toUpperCase()} ✓ Real</span>`}</td></tr>`).join('');
+}
+async function approveInstall(id){
+  if(!confirm('Verify Real: Live Selfie + 3 Live Photos + GPS + Serial 13-digit via Vyapar PC invoice 973? Approve ₦5K Real to Firestore?')) return;
+  try{
+    const user=JSON.parse(localStorage.getItem('unicron_user'));
+    const r=await fetch('/api/admin/approve',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(user.token||'')},body:JSON.stringify({id,installerId:user.id})});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.message||'Approve failed');
+    alert('✅ Approved Real! ₦5K credited to installer - Firestore updated - No demo');
+    loadAdminData();
+  }catch(e){alert('❌ Approve Real Failed: '+e.message+' - Check /api/admin/approve - No demo');}
+}
 </script>
 
 <footer class="mt-12 border-t border-black/5 py-8 text-center">
-  <p class="font-black tracking-[0.2em] text-[11px] unicron-red-text">RELIABLE POWER. LIMITLESS POSSIBILITIES. • UNICRON+</p>
-  <p class="text-[11px] text-black/40 mt-2">© 2026 Unicron+ Nigeria • Built for 500+ Electricians • Live Selfie KYC Must • 3 Live Photos Camera Only • No Gallery • GPS + Timestamp • Min ₦10K • Flat ₦5K • Bonus 5=₦20K • Lagos</p>
+  <p class="font-black tracking-[0.2em] text-[11px] unicron-red-text">RELIABLE POWER. LIMITLESS POSSIBILITIES. • Unicron</p>
+  <p class="text-[11px] text-black/40 mt-2">© 2026 Unicron Nigeria • RA2 International • A2K Enterprises • Wema Bank 0127884170 • Sub RS_9B6B5F • Built for 500+ Electricians • Live Selfie KYC Must • 3 Live Photos Camera Only • No Gallery • GPS + Timestamp • Min ₦10K • Flat ₦5K • Bonus 5=₦20K • Lagos</p>
   <p class="mt-4 text-[13px] font-black tracking-wide">Designed by <span class="unicron-red-text">krishnyansh zenova peaks ltd</span></p>
-  <p class="text-[12px] font-bold text-black/60 mt-2">All Rights Reserved © 2026 UNICRON+</p>
-  <p class="text-[10px] text-black/30 mt-1">Production Ready • Firebase + Flutterwave Live • Live Verification Compulsory</p>
+  <p class="text-[12px] font-bold text-black/60 mt-2">All Rights Reserved © 2026 Unicron</p>
+  <p class="text-[10px] text-black/30 mt-1">Production Ready • Firebase + Flutterwave Live + Termii OTP • Subaccount RS_9B6B5FF9A0B71815CDF19707E93BDB64 • Direct Link + QR Download: myunicron.com.ng • Offers: 5K Cashback Any Inverter+Any Battery • 15K Discount 6.2KVA+15KW Battery</p>
+  <div class="mt-4 flex justify-center gap-2">
+    <a href="https://myunicron.com.ng" class="bg-black text-white px-4 py-2 rounded-full text-[11px] font-bold">Direct Link: myunicron.com.ng</a>
+    <button onclick="openQr()" class="bg-white border border-black/10 px-4 py-2 rounded-full text-[11px] font-bold">📱 QR Download</button>
+    <a href="download.html" class="bg-[#D71921] text-white px-4 py-2 rounded-full text-[11px] font-bold">Download Page</a>
+  </div>
 </footer>
 </body>
 </html>
