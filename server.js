@@ -485,86 +485,203 @@ app.post('/api/admin/approve/:id', async (req, res) => {
   }
 });
 
-// ==================== WITHDRAW - REAL FLUTTERWAVE TRANSFER ====================
-// Real money transfer - Not demo!
-// Uses Flutterwave transfers API
-// Only deducts balance after successful transfer
+// =============== WITHDRAW - WITH OTP ALERT FOR MD - FROM RA2 SUBACCOUNT ===============
+// Real money transfer - With MD OTP verification - From A2K Wema 0127884170
+// Only after MD approves with OTP
+
+// 1. Installer withdraw request - OTP to MD - NO DIRECT TRANSFER
 app.post('/api/withdraw', async (req, res) => {
-  const { installerId, amount, bank } = req.body;
-  
-  console.log("💸 Withdraw request: Installer " + installerId + " - N" + amount);
-  
-  if (!db) {
-    return res.status(500).json({ error: "DB not connected" });
-  }
-  
-  if (!bank?.account_number || !bank?.account_bank) {
-    return res.status(400).json({ error: "Bank not set! Verify bank first" });
-  }
-  
   try {
-    const installerRef = db.collection('installers').doc(String(installerId));
-    const doc = await installerRef.get();
+    const { installerId, amount, bank, accountNo, accountName, bankName } = req.body;
     
-    if (!doc.exists) {
-      return res.status(404).json({ error: "Installer not found - Register again" });
+    // Support both old and new params
+    const finalBankName = bankName || bank?.bank_name || bank;
+    const finalAccountNo = accountNo || bank?.account_number;
+    const finalAccountName = accountName || bank?.account_name;
+
+    console.log(`💸 Withdraw request: Installer ${installerId} - N${amount} - ${finalBankName} ${finalAccountNo}`);
+
+    if (!db) {
+      return res.status(500).json({ error: "DB not connected" });
     }
+
+    if (!finalAccountNo || !finalBankName) {
+      return res.status(400).json({ error: "Bank not set! Verify bank first" });
+    }
+
+    if (!amount || amount < 10000) {
+      return res.status(400).json({ error: "Minimum withdrawal is ₦10,000" });
+    }
+
+    const installerRef = db.collection('users').doc(installerId);
+    const installerDoc = await installerRef.get();
+    if (!installerDoc.exists) return res.status(404).json({ error: "Installer not found" });
     
-    const installer = doc.data();
-    
-    // Check balance
+    const installer = installerDoc.data();
     if ((installer.balance || 0) < amount) {
-      return res.status(400).json({ error: "Insufficient! You have N" + installer.balance });
+      return res.status(400).json({ error: `Insufficient balance: ₦${installer.balance} - You have ₦${installer.balance}` });
     }
-    
-    // Min withdraw N10000
-    if (amount < 10000) {
-      return res.status(400).json({ error: "Min withdraw N10,000!" });
+
+    // Generate 6-digit OTP for MD
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    const withdrawData = {
+      installerId: installerId,
+      installerName: installer.name || installer.companyName || 'Installer',
+      installerPhone: installer.phone,
+      amount: amount,
+      installerBank: finalBankName,
+      installerAccountNo: finalAccountNo,
+      installerAccountName: finalAccountName,
+      bank: bank || { account_number: finalAccountNo, bank_name: finalBankName, account_name: finalAccountName },
+      payoutFrom: UNICRON_SUBACCOUNT,
+      subaccount_id: UNICRON_SUBACCOUNT.id,
+      status: 'pending_otp',
+      otp: otp,
+      otpExpiry: otpExpiry.toISOString(),
+      otpAttempts: 0,
+      requestedAt: new Date().toISOString(),
+      message: `Withdrawal ₦${amount} requested - OTP ${otp} sent to MD - Will be paid from ${UNICRON_SUBACCOUNT.payoutAccount}`
+    };
+
+    const withdrawRef = await db.collection('withdrawRequests').add(withdrawData);
+
+    // Try to send SMS to MD if Termii configured
+    let smsSent = false;
+    if (process.env.TERMII_API_KEY && process.env.MD_PHONE) {
+      try {
+        const smsRes = await fetch('https://api.ng.termii.com/api/sms/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: process.env.MD_PHONE,
+            from: "UNICRON",
+            sms: `UNICRON ALERT: ${withdrawData.installerName} requested ₦${amount} withdrawal to ${finalBankName} ${finalAccountNo}. OTP to approve: ${otp}. From: ${UNICRON_SUBACCOUNT.payoutAccount}. Subaccount: ${UNICRON_SUBACCOUNT.name}`,
+            type: "plain",
+            channel: "generic",
+            api_key: process.env.TERMII_API_KEY
+          })
+        });
+        const smsData = await smsRes.json();
+        smsSent = true;
+        console.log(`📲 OTP SMS to MD ${process.env.MD_PHONE}: ${otp}`, smsData);
+      } catch (e) {
+        console.log('SMS failed, but OTP saved:', otp);
+      }
     }
-    
-    // Real Flutterwave Transfer
-    const resp = await fetch('https://api.flutterwave.com/v3/transfers', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Authorization': 'Bearer ' + process.env.FLW_SECRET_KEY 
-      },
-      body: JSON.stringify({
-        account_bank: bank.account_bank,
-        account_number: bank.account_number,
-        amount,
-        currency: "NGN",
-        beneficiary_name: bank.account_name || installer.name,
-        reference: "UNICRON-" + installerId + "-" + Date.now(),
-        debit_currency: "NGN"
-      })
+
+    res.json({
+      success: true,
+      message: `✅ Withdraw request of ₦${amount} submitted! MD alerted - OTP sent to MD for approval. Will be paid from ${UNICRON_SUBACCOUNT.payoutAccount} after MD approves.`,
+      withdrawId: withdrawRef.id,
+      payoutFrom: UNICRON_SUBACCOUNT,
+      subaccount: UNICRON_SUBACCOUNT.id,
+      status: 'pending_otp',
+      mdAlerted: smsSent,
+      mdPhone: process.env.MD_PHONE || 'MD'
     });
-    
-    const data = await resp.json();
-    
-    if (!resp.ok) {
-      throw new Error(data.message || "Transfer failed");
-    }
-    
-    // Only deduct if Flutterwave success - Real money!
-    const newBalance = installer.balance - amount;
-    await installerRef.update({ balance: newBalance });
-    
-    console.log("✅ REAL Transfer success: " + data.data.id + " - N" + amount);
-    
-    res.json({ 
-      success: true, 
-      message: "REAL N" + amount + " sent to " + bank.account_number + "!",
-      transfer_id: data.data.id,
-      new_balance: newBalance
-    });
-    
+
   } catch (e) {
-    console.log("❌ Withdraw failed:", e.message);
-    res.status(400).json({ 
-      error: "REAL Withdraw Failed!",
-      details: e.message,
-      possible: ["1. Flutterwave wallet balance 0", "2. Transfers not enabled", "3. Bank wrong"]
+    console.log("Withdraw error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// 2. MD verifies OTP and auto payment from RA2 subaccount
+app.post('/api/admin/verify-withdraw-otp', async (req, res) => {
+  try {
+    const { withdrawId, otp } = req.body;
+    if (!withdrawId || !otp) return res.status(400).json({ error: 'WithdrawId and OTP required' });
+
+    const withdrawDoc = await db.collection('withdrawRequests').doc(withdrawId).get();
+    if (!withdrawDoc.exists) return res.status(404).json({ error: 'Withdraw not found' });
+    
+    const data = withdrawDoc.data();
+
+    if (new Date(data.otpExpiry) < new Date()) {
+      return res.status(400).json({ error: 'OTP expired - Request again' });
+    }
+
+    if (data.otp !== otp) {
+      await db.collection('withdrawRequests').doc(withdrawId).update({
+        otpAttempts: (data.otpAttempts || 0) + 1
+      });
+      return res.status(400).json({ error: 'Invalid OTP - Try again' });
+    }
+
+    // OTP correct - Now pay from RA2 subaccount
+    const bankCodes = {
+      " Access Bank ": "044", "GTB": "058", "GTBank": "058", "First Bank": "011",
+      " Zenith Bank ": "057", "UBA": "033", " Wema Bank ": "035", "Fidelity": "070",
+      "Union Bank": "032", "Sterling Bank": "232", " FCMB ": "214"
+    };
+    const bankCode = bankCodes[data.installerBank] || bankCodes[data.bank?.bank_name] || "044";
+
+    const payload = {
+      account_bank: bankCode,
+      account_number: data.installerAccountNo || data.bank?.account_number,
+      amount: data.amount,
+      currency: "NGN",
+      beneficiary_name: data.installerAccountName || data.bank?.account_name || data.installerName,
+      reference: `UNICRON-${withdrawId}-${Date.now()}`,
+      callback_url: "https://myunicron.com.ng/api/webhook",
+      meta: {
+        project: "UNICRON",
+        subaccount: UNICRON_SUBACCOUNT.id,
+        payout_from: UNICRON_SUBACCOUNT.payoutAccount,
+        approved_by: "MD via OTP"
+      }
+    };
+
+    const response = await fetch('https://api.flutterwave.com/v3/transfers', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (result.status === 'success') {
+      await db.collection('withdrawRequests').doc(withdrawId).update({
+        status: 'paid',
+        paidFrom: UNICRON_SUBACCOUNT,
+        transferId: result.data.id,
+        reference: result.data.reference,
+        paidAt: new Date().toISOString(),
+        method: 'flutterwave_subaccount_otp_verified',
+        otpVerified: true,
+        approvedBy: 'MD'
+      });
+
+      const installerRef = db.collection('users').doc(data.installerId);
+      const installerDoc = await installerRef.get();
+      if (installerDoc.exists) {
+        await installerRef.update({
+          balance: (installerDoc.data().balance || 0) - data.amount,
+          totalWithdrawn: (installerDoc.data().totalWithdrawn || 0) + data.amount
+        });
+      }
+
+      res.json({
+        success: true,
+        message: `✅ OTP Verified! Paid ₦${data.amount} to ${data.installerName} from ${UNICRON_SUBACCOUNT.payoutAccount} via ${UNICRON_SUBACCOUNT.name}!`,
+        transfer: result.data
+      });
+    } else {
+      throw new Error(result.message || 'Transfer failed');
+    }
+
+  } catch (err) {
+    console.log("Verify OTP error:", err.message);
+    res.json({
+      success: false,
+      manualNeeded: true,
+      message: `Manual needed: Transfer from ${UNICRON_SUBACCOUNT.payoutAccount}. Error: ${err.message}`,
+      payoutFrom: UNICRON_SUBACCOUNT
     });
   }
 });
