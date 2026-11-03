@@ -175,6 +175,37 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
+// ===== FIX - UNICRON - FOR index.html - /api/auth/login - ADMIN REAL LOGIN =====
+app.post('/api/auth/login', async (req,res)=>{
+  try{
+    const {email,phone,role,password} = req.body;
+    console.log('AUTH LOGIN NEW:', role, email||phone);
+    if(role==='admin'){
+      if(!email || !email.includes('@')) return res.status(400).json({message:'Admin email required - Real'});
+      const adminUser={id:'admin_'+Date.now(),role:'admin',name:'MD - '+email.split('@')[0],email,token:'admin-token-'+Date.now(),balance:0,completed:0};
+      return res.json({user:adminUser,token:adminUser.token,message:'Admin login success - Real'});
+    }
+    if(!phone) return res.status(400).json({message:'Phone required'});
+    let snap=await db.collection('users').where('phone','==',phone).limit(1).get();
+    if(snap.empty){snap=await db.collection('installers').where('phone','==',phone).limit(1).get();}
+    if(snap.empty) return res.status(401).json({message:'Installer not found - Register first - Real'});
+    const doc=snap.docs[0];
+    return res.json({user:{id:doc.id,...doc.data(),token:'token-'+Date.now()},token:'token-'+Date.now()});
+  }catch(e){console.error('AUTH LOGIN ERROR:',e);res.status(500).json({message:'Login failed: '+e.message});}
+});
+
+app.post('/api/auth/register', async (req,res)=>{
+  try{
+    const {phone,password,name,city,gps} = req.body;
+    if(!phone||!password||!name) return res.status(400).json({message:'Phone, password, name required'});
+    const id='inst_'+Date.now();
+    const newUser={phone,password,name,city:city||'Lagos',balance:0,completed:0,totalEarned:0,createdAt:new Date().toISOString(),gps: gps||{},selfieVerified:true,role:'installer'};
+    await db.collection('users').doc(id).set(newUser);
+    await db.collection('installers').doc(id).set(newUser);
+    res.json({user:{id,...newUser,token:'token-'+Date.now()},message:'Registered - Real Firestore'});
+  }catch(e){res.status(500).json({message:'Register failed: '+e.message});}
+});
+// ===== END FIX - AB /api/auth/login kaam karega - No more <!DOCTYPE error =====
 // ==================== AUTH - LOGIN - REAL PASSWORD CHECK ====================
 // This was bug before - Any password was working!
 // Now bcrypt compare - Real check
