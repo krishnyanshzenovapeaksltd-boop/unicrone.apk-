@@ -775,6 +775,19 @@ app.post('/api/admin/import-serials', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// List all withdraw requests for MD admin - For admin-withdraw.html
+app.get('/api/admin/withdraw-requests', async (req, res) => {
+  try {
+    const snapshot = await db.collection('withdrawRequests').orderBy('requestedAt', 'desc').limit(50).get();
+    const withdraws = [];
+    snapshot.forEach(doc => {
+      withdraws.push({ id: doc.id, ...doc.data() });
+    });
+    res.json({ success: true, withdraws });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // ==================== START SERVER ====================
 app.listen(PORT, () => {
