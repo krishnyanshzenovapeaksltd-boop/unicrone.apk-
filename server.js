@@ -39,14 +39,14 @@ console.log(`💰 UNICRON Payout via Subaccount: ${UNICRON_SUBACCOUNT.name} - ${
 console.log(`💰 Your Website: Uses default account - No mixing!`);
 
 // ==================== APP SETUP ====================
-42: const app = express();
-43: const PORT = process.env.PORT || 10000;
-44:
-45: // Middleware setup
-46: app.use(express.static(__dirname));
-47: app.use(express.static(path.join(__dirname, 'public')));
-48: app.use(cors());
-49: app.use(express.json({ limit: '50mb' }));
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+// Middleware setup
+app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors());
+app.use(express.json({ limit: '50mb' }));
 
 // ==================== FIREBASE FIRESTORE - PRODUCTION DATABASE ====================
 // This is main database - Never resets, handles 500+ users
