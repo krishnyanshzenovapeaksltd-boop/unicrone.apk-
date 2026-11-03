@@ -96,7 +96,7 @@
         Serial No <span class="font-mono bg-white border px-1.5 rounded">2604340900039</span> (13 digits) • <b class="text-black">Live Selfie at Login Compulsory</b> • <b class="text-black">3 Live Photos Compulsory</b> (No Gallery) • GPS Verified • Min Withdraw <b class="text-black">₦10,000</b> • Bonus 5 = ₦20K Extra
       </p>
       <div class="mt-4 p-3 bg-black text-white rounded-[14px] text-[11px] max-w-[520px]">
-        <b>💰 Payout From:</b> RA2 international limited • A2K Enterprises • 【entity-Wema Bank¦canonical_name=Wema Bank】 • <b>0127884170</b> • Subaccount RS_9B6B5FF9A0B71815CDF19707E93BDB64 (100% share) • Your website money safe!
+        <b>💰 Payout From:</b> RA2 international limited • A2K Enterprises • Wema Bank • <b>0127884170</b> • Subaccount RS_9B6B5FF9A0B71815CDF19707E93BDB64 (100% share) • Your website money safe!
       </div>
       <div class="mt-4 p-3 bg-[#D71921] text-white rounded-[14px] text-[11px] max-w-[520px] flex gap-2 flex-wrap">
         <span class="bg-white text-[#D71921] px-2 py-1 rounded-full font-black">🎁 Offers</span>
@@ -357,7 +357,7 @@ function applyLogin(user){
 function logout(){localStorage.removeItem('unicron_user');photos={photo1:null,photo2:null,photo3:null,loginSelfie:null};photoBlobs={};document.getElementById('userBadge').classList.add('hidden');document.getElementById('logoutBtn').classList.add('hidden');document.getElementById('adminLoginBtn').classList.remove('hidden');document.getElementById('installerLoginBtn').classList.remove('hidden');router('home');}
 
 async function loadBanks(){
-  try{const r=await fetch('/api/banks');if(r.ok){const d=await r.json();banksCache=d.data||d;}}catch(e){banksCache=[{name:'【entity-Access Bank¦canonical_name=Access Bank】',code:'044'},{name:'GTBank',code:'058'},{name:'First Bank',code:'011'},{name:'UBA',code:'033'},{name:'【entity-Zenith Bank¦canonical_name=Zenith Bank】',code:'057'},{name:'【entity-Wema Bank¦canonical_name=Wema Bank】',code:'035'},{name:'【entity-Fidelity Bank¦canonical_name=Fidelity Bank】',code:'070'},{name:'Union Bank',code:'032'},{name:'Sterling Bank',code:'232'},{name:'【entity-FCMB¦canonical_name=FCMB】',code:'214'}];}
+  try{const r=await fetch('/api/banks');if(r.ok){const d=await r.json();banksCache=d.data||d;}}catch(e){banksCache=[{name:'Access Bank',code:'044'},{name:'GTBank',code:'058'},{name:'First Bank',code:'011'},{name:'UBA',code:'033'},{name:'【entity-Zenith Bank¦canonical_name=Zenith Bank】',code:'057'},{name:'【entity-Wema Bank¦canonical_name=Wema Bank】',code:'035'},{name:'【entity-Fidelity Bank¦canonical_name=Fidelity Bank】',code:'070'},{name:'Union Bank',code:'032'},{name:'Sterling Bank',code:'232'},{name:'【entity-FCMB¦canonical_name=FCMB】',code:'214'}];}
   const sel=document.getElementById('bankSelect');sel.innerHTML='<option value="">Select Bank - Real Verified</option>'+banksCache.map(b=>`<option value="${b.code}">${b.name}</option>`).join('');
 }
 
