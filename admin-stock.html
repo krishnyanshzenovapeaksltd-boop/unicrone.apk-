@@ -3,209 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UNICRON Stock Manager - RA2 International</title>
+<title>Unicron - Admin Stock Manager - Daily Serial Add</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<style>body{font-family:Inter,sans-serif;background:#FFF5F3}</style>
 </head>
-<body class="p-4 md:p-8">
-<div class="max-w-6xl mx-auto">
-<h1 class="font-black text-2xl"><span class="text-[#D71921]">UNICRON</span> Stock Manager</h1>
-<p class="text-sm text-black/60">RA2 International Limited - Bina Vyapar ke - 13-digit Serial Verification</p>
-
-<!-- STATS -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
-<div class="bg-[#D71921] text-white p-4 rounded-2xl"><p class="text-2xl font-black" id="totalStock">500</p><p class="text-xs font-bold">Total Stock</p></div>
-<div class="bg-white border p-4 rounded-2xl"><p class="text-2xl font-black" id="availStock">450</p><p class="text-xs font-bold">Available</p></div>
-<div class="bg-white border p-4 rounded-2xl"><p class="text-2xl font-black" id="usedStock">50</p><p class="text-xs font-bold">Used / Exited</p></div>
-<div class="bg-black text-white p-4 rounded-2xl"><p class="text-2xl font-black" id="fraudStock">12</p><p class="text-xs font-bold">Already Exited Attempts</p></div>
+<body class="bg-[#FFF5F3] min-h-screen p-4 md:p-8">
+<div class="max-w-5xl mx-auto">
+<div class="bg-white rounded-[24px] border p-6 shadow-sm">
+<div class="flex justify-between flex-wrap gap-3">
+<div><h1 class="font-black text-[22px]"><span class="text-[#D71921]">Unicron</span> - Stock Manager</h1><p class="text-[12px] text-black/60">Daily new serial add + Verify existing/new - Real Firestore - RA2 Wema 0127884170</p></div>
+<a href="index.html" class="bg-black text-white px-4 py-2 rounded-full text-[12px] font-bold">Back to App</a>
 </div>
 
-<div class="grid md:grid-cols-2 gap-6 mt-6">
-<!-- ADD STOCK -->
-<div class="bg-white border rounded-2xl p-5">
-<h3 class="font-black text-sm">+ Add New Stock (Bina Vyapar)</h3>
-<p class="text-xs text-black/50 mt-1">Paste 100s of 13-digit serials from Invoice 973</p>
-
-<label class="text-xs font-bold mt-4 block">MODEL *</label>
-<select id="model" class="w-full border rounded-xl px-3 py-2.5 text-sm mt-1">
-<option>UNICRON NOVA 3 KVA 24V (₹215K)</option>
-<option>UNICRON NOVA 4.2 KVA 24V (₹270K)</option>
-<option>UNICRON NOVA 6.2 KVA 48V (₹335K)</option>
-<option>Unicron 2 KVA</option>
-<option>Unicron 12 KVA</option>
-<option>15KW Lithium Battery</option>
+<div class="mt-6 grid md:grid-cols-2 gap-6">
+<div class="bg-[#FFF1ED] border-2 border-red-100 rounded-[20px] p-5">
+<h3 class="font-black text-[14px]">📦 Daily New Serial Add (Vyapar se)</h3>
+<p class="text-[11px] mt-1 text-black/60">Invoice se 13-digit serial paste karo - Auto check Existing/New/Used - Firestore inventorySerials me save</p>
+<div class="mt-4 space-y-3">
+<input id="invoiceNo" placeholder="Invoice No (e.g., 973)" class="w-full border rounded-full px-4 py-2.5 text-[12px]">
+<select id="modelSelect" class="w-full border rounded-full px-4 py-2.5 text-[12px]">
+<option value="">Select Model</option>
+<option>Nova 2 KVA</option><option>Nova 3.5 KVA</option><option>Nova 4.2 KVA</option><option>Nova 6.2 KVA</option><option>Nova 12 KVA</option><option>15KW Lithium Battery</option>
 </select>
-
-<label class="text-xs font-bold mt-3 block">INVOICE NO (Optional)</label>
-<input id="invoiceNo" value="973" class="w-full border rounded-xl px-3 py-2.5 text-sm mt-1" placeholder="973">
-
-<label class="text-xs font-bold mt-3 block">SERIAL NUMBERS (13-DIGIT EACH) - <span id="count" class="text-[#D71921]">0 valid</span></label>
-<textarea id="serials" rows="10" class="w-full border rounded-xl px-3 py-2.5 text-xs font-mono mt-1" placeholder="2604340900039
-2604340900054
-2604340900077
-2604340900085
-... paste 22 serials here"></textarea>
-
-<div class="flex gap-2 mt-3">
-<button onclick="addStock()" class="flex-1 bg-[#D71921] text-white py-2.5 rounded-full text-sm font-black">Add to Stock</button>
-<button onclick="clearAll()" class="bg-white border px-4 py-2.5 rounded-full text-sm font-bold">Clear</button>
+<textarea id="serialsInput" placeholder="Paste serials - One per line or comma separated - 13 digits each&#10;e.g.&#10;2604340900039&#10;2604340900040&#10;2604340900041" class="w-full border rounded-[16px] px-4 py-3 text-[12px] font-mono h-[140px]"></textarea>
+<div class="flex gap-2">
+<button onclick="checkSerials()" class="flex-1 bg-white border-2 border-black py-2.5 rounded-full text-[11px] font-black">🔍 Check Existing/New</button>
+<button onclick="importSerials()" class="flex-1 bg-[#D71921] text-white py-2.5 rounded-full text-[11px] font-black">✅ Add New to Firestore</button>
 </div>
-<button onclick="exportCSV()" class="w-full mt-2 bg-black text-white py-2 rounded-full text-xs font-bold">Export CSV</button>
+<p id="checkResult" class="text-[11px] mt-2 font-bold"></p>
+</div>
 </div>
 
-<!-- VERIFY -->
-<div class="bg-white border rounded-2xl p-5">
-<h3 class="font-black text-sm">🔍 Search & Verify Serial</h3>
-<p class="text-xs text-black/50 mt-1">13-digit instant validation</p>
-
-<label class="text-xs font-bold mt-4 block">ENTER SERIAL NO</label>
-<div class="flex gap-2 mt-1">
-<input id="searchSerial" placeholder="2604340900054" class="flex-1 border rounded-xl px-3 py-2.5 text-sm font-mono">
-<button onclick="verifySerial()" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-black">Verify</button>
+<div class="bg-white border rounded-[20px] p-5">
+<h3 class="font-black text-[14px]">🔍 Single Serial Verify - Installer Check</h3>
+<p class="text-[11px] mt-1 text-black/60">Installer ne jo image upload ki - Uska serial check karo - Existing/New/Used?</p>
+<div class="mt-4 space-y-3">
+<input id="singleSerial" placeholder="13-digit serial (2604340900039)" class="w-full border-2 border-[#D71921] rounded-full px-4 py-3 text-[13px] font-mono" maxlength="13">
+<button onclick="verifySingle()" class="w-full bg-black text-white py-3 rounded-full text-[12px] font-black">Verify Real via /api/verify-serial</button>
+<div id="singleResult" class="mt-3 p-3 rounded-[12px] text-[12px] hidden"></div>
 </div>
-
-<div id="result" class="hidden mt-4 p-3 rounded-xl text-sm font-bold"></div>
-
-<div class="mt-6">
-<h4 class="font-black text-xs">Demo Stock Table - Invoice 973</h4>
-<div class="overflow-x-auto mt-2 border rounded-xl">
-<table class="w-full text-xs text-left">
-<thead class="bg-gray-50 border-b"><tr><th class="p-2">Serial No</th><th class="p-2">Model</th><th class="p-2">Status</th><th class="p-2">Invoice</th></tr></thead>
-<tbody id="tableBody"></tbody>
-</table>
-</div>
+<div class="mt-6 bg-black text-white rounded-[16px] p-4 text-[11px]">
+<p class="font-black">💰 Payout Info</p>
+<p class="mt-2 leading-5">RA2 international limited<br>A2K Enterprises<br>【entity-Wema Bank¦canonical_name=Wema Bank】 0127884170<br>Sub: RS_9B6B5FF9A0B71815CDF19707E93BDB64<br>100% share - Your website money safe</p>
 </div>
 </div>
 </div>
 
-<footer class="mt-8 bg-black text-white p-4 rounded-2xl text-center">
-<p class="text-xs font-bold">UNICRON Stock Manager - RA2 International Limited</p>
-<p class="text-[11px] opacity-60 mt-1">Designed by krishnyansh zenova peaks ltd • Bina Vyapar ke • 13-digit serial integrity</p>
-</footer>
+<div class="mt-8 bg-white border rounded-[20px] p-5">
+<h3 class="font-black text-[14px]">📋 Inventory Status - Real Firestore</h3>
+<div class="mt-4 grid grid-cols-3 gap-3 text-center">
+<div class="bg-[#FFF1ED] p-4 rounded-[16px]"><p class="text-[11px]">Total Stock</p><p id="totalStock" class="text-[24px] font-black text-[#D71921]">-</p><p class="text-[10px]">inventorySerials</p></div>
+<div class="bg-gray-50 p-4 rounded-[16px]"><p class="text-[11px]">Used/Exited</p><p id="usedStock" class="text-[24px] font-black">-</p><p class="text-[10px]">usedSerials</p></div>
+<div class="bg-black text-white p-4 rounded-[16px]"><p class="text-[11px]">Available</p><p id="availStock" class="text-[24px] font-black">-</p><p class="text-[10px]">Real available</p></div>
+</div>
+<button onclick="loadStats()" class="mt-4 bg-white border px-4 py-2 rounded-full text-[11px] font-bold">Refresh Stats</button>
+<div id="recentList" class="mt-4 text-[11px] font-mono max-h-[200px] overflow-y-auto border rounded-[12px] p-3 bg-gray-50"></div>
+</div>
+</div>
 </div>
 
 <script>
-const demoSerials = [
-{s:"2604340900039",m:"3 KVA",st:"Available",inv:"973"},
-{s:"2604340900046",m:"3 KVA",st:"Available",inv:"973"},
-{s:"2604340900054",m:"3 KVA",st:"Used / Exited",inv:"973",used:"Raju - 24-07-2026"},
-{s:"2604340900062",m:"3 KVA",st:"Available",inv:"973"},
-{s:"2604340900077",m:"3 KVA",st:"Available",inv:"973"},
-{s:"2604340900085",m:"3 KVA",st:"Available",inv:"973"},
-{s:"2604340900093",m:"3 KVA",st:"Available",inv:"973"},
-{s:"2605343211067",m:"4.2 KVA",st:"Available",inv:"973"},
-{s:"2605343211077",m:"4.2 KVA",st:"Available",inv:"973"},
-{s:"2605343211089",m:"4.2 KVA",st:"Available",inv:"973"},
-{s:"2605343811021",m:"6.2 KVA",st:"Available",inv:"973"},
-{s:"2605343811025",m:"6.2 KVA",st:"Available",inv:"973"},
-{s:"2605343811030",m:"6.2 KVA",st:"Available",inv:"973"}
-];
-let allSerials = [...demoSerials];
-
-function renderTable(){
-document.getElementById('tableBody').innerHTML = allSerials.map(x=>`
-<tr class="border-b">
-<td class="p-2 font-mono">${x.s}</td>
-<td class="p-2">${x.m}</td>
-<td class="p-2"><span class="px-2 py-1 rounded-full text-[11px] ${x.st.includes('Available')?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${x.st}</span></td>
-<td class="p-2">${x.inv}</td>
-</tr>`).join('');
-document.getElementById('totalStock').innerText = allSerials.length + 487;
-document.getElementById('availStock').innerText = allSerials.filter(x=>x.st.includes('Available')).length + 438;
-}
-renderTable();
-
-document.getElementById('serials').addEventListener('input',function(){
-const txt = this.value;
-const lines = txt.split(/[\n,\s]+/).filter(s=>/^\d{13}$/.test(s.trim()));
-document.getElementById('count').innerText = lines.length + ' valid';
-});
-
-function addStock(){
-const txt = document.getElementById('serials').value;
-const model = document.getElementById('model').value;
-const inv = document.getElementById('invoiceNo').value || '973';
-const lines = txt.split(/[\n,\s,]+/).map(s=>s.trim()).filter(s=>/^\d{13}$/.test(s));
-if(lines.length===0){alert('Paste 13-digit serials like 2604340900039');return;}
-
-const payload = lines.map(s=>({serial_no:s, model:model, invoice_no:inv}));
-
-// Call API
-fetch('/api/admin/import-serials',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({serials:payload})
-}).then(r=>r.json()).then(d=>{
-alert(`✅ ${d.imported || lines.length} serials added to stock!`);
-lines.forEach(s=>{
-if(!allSerials.find(x=>x.s===s)){
-allSerials.unshift({s:s,m:model,st:'Available',inv:inv});
-}
-});
-renderTable();
-}).catch(()=>{
-alert(`✅ Demo: ${lines.length} serials added (Firebase not connected)`);
-lines.forEach(s=>{
-if(!allSerials.find(x=>x.s===s)){
-allSerials.unshift({s:s,m:model,st:'Available',inv:inv});
-}
-});
-renderTable();
-});
+async function checkSerials(){
+  const text=document.getElementById('serialsInput').value.trim();
+  const resEl=document.getElementById('checkResult');
+  if(!text){resEl.innerText='Paste serials first'; return;}
+  const serials=text.split(/[\n,\s]+/).filter(s=>s.length>=10).map(s=>s.trim()).filter(Boolean);
+  resEl.innerText='Checking '+serials.length+' serials via real API...';
+  try{
+    const r=await fetch('/api/admin/check-serials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({serials})});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.message);
+    // d.new, d.existing, d.used
+    resEl.innerHTML=`✅ Checked Real: <span class="text-green-600">${d.new?.length||0} New</span> | <span class="text-orange-600">${d.existing?.length||0} Existing in Stock</span> | <span class="text-red-600">${d.used?.length||0} Already Used/Exited</span>`;
+  }catch(e){
+    // Fallback local check via verify-serial one by one
+    let newC=0, existC=0, usedC=0;
+    for(let s of serials){
+      try{const r=await fetch('/api/verify-serial',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({serialNo:s})}); const d=await r.json(); if(d.status==='used') usedC++; else if(d.valid||d.status==='available') existC++; else newC++;}catch{newC++;}
+    }
+    resEl.innerHTML=`Checked (fallback): ${newC} New | ${existC} Existing | ${usedC} Used`;
+  }
 }
 
-function verifySerial(){
-const s = document.getElementById('searchSerial').value.trim();
-const res = document.getElementById('result');
-res.classList.remove('hidden');
-if(!/^\d{13}$/.test(s)){
-res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-red-50 text-red-700 border border-red-200';
-res.innerText = '❌ Invalid - Must be 13 digits like 2604340900039';
-return;
-}
-res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-blue-50 text-blue-700 border';
-res.innerText = '🔍 Checking RA2 International stock...';
-
-fetch('/api/verify-serial',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({serialNo:s})
-}).then(r=>r.json()).then(d=>{
-if(d.valid){
-res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-green-50 text-green-700 border border-green-200';
-res.innerText = d.message;
-}else{
-if(d.alreadyUsed){
-res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-red-50 text-red-700 border border-red-200';
-res.innerText = d.message + ' - Already Exited!';
-}else{
-res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-orange-50 text-orange-700 border';
-res.innerText = d.message;
-}
-}
-}).catch(()=>{
-const found = allSerials.find(x=>x.s===s);
-if(!found){
-res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-orange-50 text-orange-700 border';
-res.innerText = '❌ Invalid Serial - Not found in stock (Invoice 973)';
-}else if(found.st.includes('Used')){
-res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-red-50 text-red-700 border border-red-200';
-res.innerText = `⚠️ Already Exited - Used by ${found.used || 'Raju - 24-07-2026'} - ${found.s}`;
-}else{
-res.className = 'mt-4 p-3 rounded-xl text-sm font-bold bg-green-50 text-green-700 border border-green-200';
-res.innerText = `✅ Verified - ${found.m} - Invoice ${found.inv} - Eligible for ₦5K`;
-}
-});
+async function importSerials(){
+  const invoice=document.getElementById('invoiceNo').value.trim();
+  const model=document.getElementById('modelSelect').value;
+  const text=document.getElementById('serialsInput').value.trim();
+  if(!invoice||!model||!text){alert('Invoice No, Model, Serials required - Real'); return;}
+  const serials=text.split(/[\n,\s]+/).filter(s=>s.length==13 && /^\d+$/.test(s)).map(s=>s.trim());
+  if(serials.length==0){alert('No valid 13-digit serials found - e.g., 2604340900039'); return;}
+  if(!confirm(`Add ${serials.length} serials?\nInvoice: ${invoice}\nModel: ${model}\nReal Firestore inventorySerials?`)) return;
+  try{
+    const r=await fetch('/api/admin/import-serials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({invoiceNo:invoice,model,serials})});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.message);
+    alert(`✅ Real Added to Firestore!\nNew: ${d.imported||serials.length}\nExisting skipped: ${d.skipped||0}\nModel: ${model}\nInvoice: ${invoice}\nCollection: inventorySerials`);
+    loadStats();
+  }catch(e){alert('❌ Import failed Real: '+e.message+'\nCheck /api/admin/import-serials - Render logs');}
 }
 
-function clearAll(){document.getElementById('serials').value='';document.getElementById('count').innerText='0 valid';}
-function exportCSV(){
-let csv = 'serial_no,model,invoice_no,status\n';
-allSerials.forEach(x=>{csv+=`${x.s},${x.m},${x.inv},${x.st}\n`;});
-const blob = new Blob([csv],{type:'text/csv'});
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');a.href=url;a.download=`unicron-stock-${Date.now()}.csv`;a.click();
+async function verifySingle(){
+  const s=document.getElementById('singleSerial').value.trim();
+  const el=document.getElementById('singleResult');
+  if(s.length!=13){alert('13 digits required'); return;}
+  el.classList.remove('hidden'); el.className='mt-3 p-3 rounded-[12px] text-[12px] bg-yellow-50 border'; el.innerText='Verifying real...';
+  try{
+    const r=await fetch('/api/verify-serial',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({serialNo:s})});
+    const d=await r.json();
+    if(d.status==='used' || d.message?.toLowerCase().includes('used') || d.message?.toLowerCase().includes('exited')){
+      el.className='mt-3 p-3 rounded-[12px] text-[12px] bg-red-50 border border-red-200 text-red-700'; el.innerHTML=`❌ <b>Already Used/Exited</b><br>Serial: ${s}<br>Model: ${d.model||'-'}<br>Used by: ${d.usedBy||d.installerId||'-'}<br>Cannot reuse - Installer image check failed`;
+    }else if(d.valid || d.status==='available' || d.exists){
+      el.className='mt-3 p-3 rounded-[12px] text-[12px] bg-green-50 border border-green-200 text-green-700'; el.innerHTML=`✅ <b>Valid - In Stock - Available</b><br>Serial: ${s}<br>Model: ${d.model||'-'}<br>Invoice: ${d.invoiceNo||'-'}<br>Status: Available in inventorySerials - Can approve installer`;
+    }else{
+      el.className='mt-3 p-3 rounded-[12px] text-[12px] bg-red-50 border border-red-200 text-red-700'; el.innerHTML=`❌ <b>Invalid - Not in Stock</b><br>Serial: ${s}<br>Not found in inventorySerials<br>Add via daily import from Vyapar invoice - Real`;
+    }
+  }catch(e){el.className='mt-3 p-3 rounded-[12px] text-[12px] bg-red-50 border'; el.innerText='❌ Verify failed Real: '+e.message;}
 }
+
+async function loadStats(){
+  try{
+    const r=await fetch('/api/admin/stats'); if(r.ok){const d=await r.json(); document.getElementById('totalStock').innerText=d.total||'-'; document.getElementById('usedStock').innerText=d.used||'-'; document.getElementById('availStock').innerText=d.available||'-'; if(d.recent) document.getElementById('recentList').innerText=d.recent.join('\n'); return;}
+    // Fallback
+    document.getElementById('totalStock').innerText='Real API check /api/admin/stats';
+  }catch(e){document.getElementById('totalStock').innerText='Error';}
+}
+window.addEventListener('load',loadStats);
 </script>
 </body>
 </html>
