@@ -16,18 +16,18 @@
       "isSquare": true,
       "isPng": true,
       "isWebp": false,
-      "isJpg": true,
+      "ispng": true,
       "width": 512,
       "is512x512": true,
       "is256x256": false,
       "is192x192": false
     },
     {
-      "src": "https://myunicron.com.ng/icon.png",
-      "isSquare": false,
+      "src": "https://myunicron.com.ng/logo.png",
+      "isSquare": false
       "isPng": true,
       "isWebp": false,
-      "isJpg": false,
+      "ispng": false,
       "width": 0,
       "is512x512": false,
       "is256x256": false,
@@ -42,7 +42,6 @@
       "ispng": false,
       "width": 0,
       "is512x512": false,
-      
       "is192x192": false
     }
   ]
