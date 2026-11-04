@@ -41,6 +41,21 @@ console.log(`💰 Your Website: Uses default account - No mixing!`);
 // ==================== APP SETUP ====================
 const app = express();
 const PORT = process.env.PORT || 10000;
+// FIX - Force serve PWA files - No 404
+app.get('/manifest.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(__dirname, 'manifest.json'));
+});
+app.get('/icon.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'icon.png'));
+});
+app.get('/logo.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'logo.png'));
+});
+app.get('/sw.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, 'sw.js'));
+});
 
 // Middleware setup
 app.use(express.static(__dirname));
