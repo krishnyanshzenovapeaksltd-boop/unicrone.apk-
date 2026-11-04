@@ -1,12 +1,13 @@
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
-  "display": "standalone",
-  "name": "Unicron",
-  "orientation": "any",
-  "scope": "/",
+  "id": "/",
+  "name": "UNICRON+",
   "short_name": "Unicron",
+  "description": "Reliable Power. Limitless Possibilities.",
   "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0D1921",
   "theme_color": "#D71921",
   "icons": [
     {
