@@ -10,8 +10,8 @@
   "theme_color": "#D71921",
   "icons": [
     {
-      "src": "https://myunicron.com.ng/logo.png",
-      "type": "image/jpeg",
+      "src": "https://myunicron.com.ng/icon.png",
+      "type": "image/png",
       "sizes": "512x512",
       "isSquare": true,
       "isPng": true,
@@ -23,7 +23,7 @@
       "is192x192": false
     },
     {
-      "src": "https://myunicron.com.ng/icon-512.png",
+      "src": "https://myunicron.com.ng/icon.png",
       "isSquare": false,
       "isPng": true,
       "isWebp": false,
@@ -39,10 +39,10 @@
       "isSquare": false,
       "isPng": false,
       "isWebp": false,
-      "isJpg": false,
+      "ispng": false,
       "width": 0,
       "is512x512": false,
-      "is256x256": false,
+      
       "is192x192": false
     }
   ]
