@@ -20,6 +20,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const multer = require('multer');
 const admin = require('firebase-admin');
 const bcrypt = require('bcryptjs');
@@ -41,20 +42,29 @@ console.log(`💰 Your Website: Uses default account - No mixing!`);
 // ==================== APP SETUP ====================
 const app = express();
 const PORT = process.env.PORT || 10000;
-// FIX - Force serve PWA files - No 404
+// FIX - Force serve PWA files - Check both root and unicrone.apk folder - No 500
+const fs = require('fs');
+function getFilePath(fileName) {
+  const rootPath = path.join(__dirname, fileName);
+  const subPath = path.join(__dirname, 'unicrone.apk', fileName);
+  if (fs.existsSync(rootPath)) return rootPath;
+  if (fs.existsSync(subPath)) return subPath;
+  return rootPath;
+}
+
 app.get('/manifest.json', (req, res) => {
   res.setHeader('Content-Type', 'application/manifest+json');
-  res.sendFile(path.join(__dirname, 'manifest.json'));
-});
-app.get('/icon.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'icon.png'));
-});
-app.get('/logo.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'logo.png'));
+  res.sendFile(getFilePath('manifest.json'));
 });
 app.get('/sw.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(path.join(__dirname, 'sw.js'));
+  res.sendFile(getFilePath('sw.js'));
+});
+app.get('/icon.png', (req, res) => {
+  res.sendFile(getFilePath('icon.png'));
+});
+app.get('/logo.png', (req, res) => {
+  res.sendFile(getFilePath('logo.png'));
 });
 
 // Middleware setup
