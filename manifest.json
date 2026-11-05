@@ -9,6 +9,10 @@
   "orientation": "portrait",
   "background_color": "#0D1921",
   "theme_color": "#D71921",
+  "categories": [
+    "utilities",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "icon.png",
@@ -21,15 +25,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Application Dashboard"
     }
   ]
 }
