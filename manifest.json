@@ -29,7 +29,7 @@
   ]
 }
 
-  ],
+  
   "screenshots": [
     {
       "src": "logo.png",
@@ -39,4 +39,4 @@
       "label": "Application Dashboard"
     }
   ]
-}
+
