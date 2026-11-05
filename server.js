@@ -42,29 +42,33 @@ console.log(`💰 Your Website: Uses default account - No mixing!`);
 // ==================== APP SETUP ====================
 const app = express();
 const PORT = process.env.PORT || 10000;
-// FIX - Force serve PWA files - Check both root and unicrone.apk folder - No 500
-const fs = require('fs');
-function getFilePath(fileName) {
-  const rootPath = path.join(__dirname, fileName);
-  const subPath = path.join(__dirname, 'unicrone.apk', fileName);
-  if (fs.existsSync(rootPath)) return rootPath;
-  if (fs.existsSync(subPath)) return subPath;
-  return rootPath;
-}
-
+// FIX - Force serve PWA files - No 404 - No 500 - With error handle
 app.get('/manifest.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/manifest+json');
-  res.sendFile(getFilePath('manifest.json'));
-});
-app.get('/sw.js', (req, res) => {
-  res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(getFilePath('sw.js'));
+  try {
+    res.setHeader('Content-Type', 'application/manifest+json');
+    const filePath = path.join(__dirname, 'manifest.json');
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      res.status(404).json({ error: 'manifest.json not found' });
+    }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 app.get('/icon.png', (req, res) => {
-  res.sendFile(getFilePath('icon.png'));
+  try { res.sendFile(path.join(__dirname, 'icon.png')); } 
+  catch (e) { res.status(404).send('icon.png not found'); }
 });
 app.get('/logo.png', (req, res) => {
-  res.sendFile(getFilePath('logo.png'));
+  try { res.sendFile(path.join(__dirname, 'logo.png')); } 
+  catch (e) { res.status(404).send('logo.png not found'); }
+});
+app.get('/sw.js', (req, res) => {
+  try {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendFile(path.join(__dirname, 'sw.js'));
+  } catch (e) { res.status(404).send('sw.js not found'); }
 });
 
 // Middleware setup
