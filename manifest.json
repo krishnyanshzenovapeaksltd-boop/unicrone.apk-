@@ -6,9 +6,10 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#0D1921",
   "theme_color": "#D71921",
+  "categories": ["business", "utilities", "productivity"],
   "icons": [
     {
       "src": "/icon.png",
@@ -33,17 +34,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    }
-  ]
-}
-  ],
-  "screenshots": [
-    {
-      "src": "/logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "UNICRON+ Installer App"
     }
   ]
 }
