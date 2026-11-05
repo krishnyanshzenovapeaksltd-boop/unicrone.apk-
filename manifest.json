@@ -9,19 +9,15 @@
   "orientation": "portrait",
   "background_color": "#0D1921",
   "theme_color": "#D71921",
-  "categories": [
-    "utilities",
-    "productivity"
-  ],
   "icons": [
     {
-      "src": "https://myunicron.com.ng/icon.png",
+      "src": "/icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://myunicron.com.ng/logo.png",
+      "src": "/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
