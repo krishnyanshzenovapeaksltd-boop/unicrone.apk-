@@ -1,117 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Download the UNICRON+ app directly from the official APK link." />
-  <title>Download UNICRON App</title>
-  <link rel="icon" href="logo.png" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Get the UNICRON+ Android app from the official download page.">
+  <meta name="theme-color" content="#D71921">
+  <title>Download UNICRON+ App</title>
+  <link rel="icon" href="logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-    }
-    .glass {
-      backdrop-filter: blur(10px);
-    }
+    body { font-family: Arial, Helvetica, sans-serif; }
   </style>
 </head>
 <body class="min-h-screen bg-[#FFF5F3] flex items-center justify-center p-4">
-  <main class="w-full max-w-[420px] rounded-[30px] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-black/5 p-6 sm:p-7">
-    <div class="text-center">
+  <main class="w-full max-w-[440px] rounded-[30px] border border-black/5 bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.12)] sm:p-7">
+    <header class="text-center">
+      <img src="logo.png" alt="UNICRON+ logo" class="mx-auto h-16 w-16 rounded-full border-2 border-[#D71921] bg-white object-cover" onerror="this.onerror=null;this.src='https://via.placeholder.com/100/D71921/FFF?text=U+'">
+      <h1 class="mt-3 text-[26px] font-black tracking-tight"><span class="text-[#D71921]">UNICRON</span>+</h1>
+      <p class="mt-1 text-[11px] text-black/60">RA2 International Limited • A2K Enterprises</p>
+      <span class="mt-3 inline-block rounded-full bg-black px-3 py-1 text-[10px] font-bold text-white">Official Android App Download</span>
+    </header>
+
+    <section class="mt-6 rounded-[26px] border-2 border-[#F7D9D3] bg-[#FFF1ED] p-5 text-center">
       <img
-        src="logo.png"
-        alt="UNICRON+ Logo"
-        onerror="this.src='https://via.placeholder.com/100/D71921/FFF?text=U+'"
-        class="mx-auto h-16 w-16 rounded-full border-2 border-[#D71921] bg-white object-cover shadow-md"
-      />
-
-      <h1 class="mt-3 text-[26px] font-black tracking-tight">
-        <span class="text-[#D71921]">UNICRON</span>+
-      </h1>
-
-      <p class="mt-1 text-[11px] text-black/60">
-        RA2 International Limited • A2K Enterprises
-      </p>
-
-      <div class="mt-3 inline-block rounded-full bg-black px-3 py-1 text-[10px] font-bold text-white">
-        Direct APK + QR Download
-      </div>
-    </div>
-
-    <section class="mt-6 rounded-[26px] border-2 border-[#F7D9D3] bg-[#FFF1ED] p-5">
-      <img
+        id="download-qr"
         src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https%3A%2F%2Fmyunicron.com.ng%2Funicron.apk&color=D71921"
-        alt="UNICRON APK Download QR Code"
+        alt="Scan to download the UNICRON+ APK"
+        width="240"
+        height="240"
         class="mx-auto h-[240px] w-[240px] rounded-2xl border-4 border-white bg-white"
-      />
-
-      <p class="mt-3 text-[11px] font-black text-black">
-        📱 Scan QR to Download / Open App
-      </p>
-
-      <p class="mt-1 break-all font-mono text-[12px] font-black text-[#D71921]">
-        https://myunicron.com.ng/unicron.apk
-      </p>
-
-      <button
-        type="button"
-        onclick="copyDownloadLink()"
-        class="mt-3 rounded-full border border-black/10 bg-white px-3 py-1 text-[10px] font-bold text-black transition hover:scale-[1.01]"
       >
-        Copy Download Link
-      </button>
+      <p class="mt-3 text-[12px] font-black">Scan to download the app</p>
+      <p class="mt-1 text-[11px] leading-5 text-black/60">This QR opens the direct APK file.</p>
+      <p class="mt-2 break-all font-mono text-[11px] font-bold text-[#D71921]">https://myunicron.com.ng/unicron.apk</p>
     </section>
 
-    <div class="mt-6 space-y-3">
+    <section class="mt-6 space-y-3">
       <a
+        id="apk-download"
         href="https://myunicron.com.ng/unicron.apk"
         download="unicron.apk"
-        class="block rounded-full bg-[#D71921] py-3.5 text-center text-[14px] font-black text-white shadow-lg shadow-red-200 transition hover:opacity-95"
+        class="block rounded-full bg-[#D71921] px-4 py-4 text-center text-[15px] font-black text-white shadow-lg shadow-red-200 transition hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-red-200"
       >
         📲 Download Android APK
       </a>
+      <p class="break-all text-center font-mono text-[11px] text-black/60">APK: <a href="https://myunicron.com.ng/unicron.apk" class="font-bold text-[#D71921]">https://myunicron.com.ng/unicron.apk</a></p>
+      <button
+        type="button"
+        id="copy-link"
+        class="mx-auto block rounded-full border border-black/10 bg-white px-4 py-2 text-[11px] font-bold text-black hover:bg-gray-50"
+      >Copy APK link</button>
+      <a href="https://myunicron.com.ng" class="block rounded-full bg-black py-3.5 text-center text-[13px] font-bold text-white hover:opacity-90">Open web app / install PWA</a>
+      <p class="text-center text-[10px] leading-4 text-black/50">Android: download and open the APK; approve the install prompt if asked.<br>iPhone: APKs are not supported. Use Safari → Share → Add to Home Screen.</p>
+    </section>
 
-      <a
-        href="https://myunicron.com.ng"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="block rounded-full bg-black py-3.5 text-center text-[13px] font-bold text-white transition hover:opacity-90"
-      >
-        ⬇️ Open Web App / Install PWA
-      </a>
+    <section class="mt-6 rounded-2xl bg-gray-50 p-4">
+      <h2 class="text-[12px] font-black">Android installation</h2>
+      <ol class="mt-2 list-inside list-decimal space-y-1 text-[11px] leading-5 text-black/70">
+        <li>Scan the QR code or open this page.</li>
+        <li>Tap <b>Download Android APK</b>.</li>
+        <li>Open the downloaded <b>unicron.apk</b> file.</li>
+        <li>If Android asks, allow your browser to install unknown apps, then tap Install.</li>
+      </ol>
+    </section>
 
-      <p class="text-center text-[10px] leading-4 text-black/45">
-        Android: Tap the APK link, then install when prompted.<br />
-        iPhone: Use Safari → Share → Add to Home Screen.
-      </p>
-    </div>
-
-    <div class="mt-6 rounded-2xl bg-gray-50 p-4 text-left">
-      <p class="text-[12px] font-black text-black">📲 Install in 30 seconds:</p>
-      <div class="mt-2 text-[11px] leading-6 text-black/70">
-        1. Scan the QR code or tap “Download Android APK”<br />
-        2. Open the downloaded <b>unicron.apk</b> file<br />
-        3. Allow installation from your browser if prompted<br />
-        4. Tap Install and open UNICRON+<br />
-        5. Log in and start using the app
-      </div>
-    </div>
-
-    <p class="mt-6 text-center text-[9px] text-black/30">
-      RA2 International Limited • Designed by Krishnyansh Zenova Peaks Ltd • myunicron.com.ng
-    </p>
+    <p class="mt-6 text-center text-[9px] text-black/35">RA2 International Limited • Designed by Krishnyansh Zenova Peaks Ltd</p>
   </main>
 
   <script>
-    function copyDownloadLink() {
-      const link = "https://myunicron.com.ng/unicron.apk";
-      navigator.clipboard.writeText(link)
-        .then(() => alert("Download link copied!"))
-        .catch(() => {
-          alert("Copy this link: " + link);
-        });
-    }
+    const apkUrl = 'https://myunicron.com.ng/unicron.apk';
+    const copyButton = document.getElementById('copy-link');
+
+    copyButton.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(apkUrl);
+        copyButton.textContent = 'Copied!';
+      } catch {
+        window.prompt('Copy the APK download link:', apkUrl);
+      }
+    });
   </script>
 </body>
 </html>
