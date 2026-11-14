@@ -42,6 +42,38 @@ console.log(`💰 Your Website: Uses default account - No mixing!`);
 // ==================== APP SETUP ====================
 const app = express();
 const PORT = process.env.PORT || 10000;
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+// Explicit download routes — place here
+const apkPath = path.join(__dirname, 'unicron.apk');
+
+app.get('/download.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'download.html'), (err) => {
+    if (err && !res.headersSent) {
+      res.status(err.statusCode || 500).send('Download page unavailable');
+    }
+  });
+});
+
+app.get(['/unicron.apk', '/download.apk'], (req, res) => {
+  if (!fs.existsSync(apkPath)) {
+    return res.status(404).send('APK not found. Place unicron.apk beside server.js.');
+  }
+
+  res.download(
+    apkPath,
+    'unicron.apk',
+    { headers: { 'Content-Type': 'application/vnd.android.package-archive' } },
+    (err) => {
+      if (err && !res.headersSent) {
+        res.status(500).send('APK download failed');
+      }
+    }
+  );
+});
+
+// FIX - Force serve PWA files - No 404 - No 500 - With error handle
 // FIX - Force serve PWA files - No 404 - No 500 - With error handle
 app.get('/manifest.json', (req, res) => {
   try {
