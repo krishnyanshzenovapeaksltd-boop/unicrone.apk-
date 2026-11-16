@@ -42,8 +42,6 @@ console.log(`💰 Your Website: Uses default account - No mixing!`);
 // ==================== APP SETUP ====================
 const app = express();
 const PORT = process.env.PORT || 10000;
-const app = express();
-const PORT = process.env.PORT || 10000;
 
 // Explicit download routes — place here
 const apkPath = path.join(__dirname, 'unicron.apk');
