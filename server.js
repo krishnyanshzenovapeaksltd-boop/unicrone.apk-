@@ -838,12 +838,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Fallback for PWA - All non-API routes to index.html
-app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api/')) {
-    res.sendFile(path.join(__dirname, 'index.html'));
-  }
-});
+
 // ===== SERIAL VERIFICATION - BINA VYAPAR - 20 Serials from Invoice 973 =====
 
 app.post('/api/verify-serial', async (req, res) => {
@@ -931,6 +926,12 @@ app.get('/api/admin/withdraw-requests', async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+  
+});
+// Fallback for PWA - SABSE LAST ME - API ke baad
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) return next();
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // ==================== START SERVER ====================
