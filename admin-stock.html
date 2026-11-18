@@ -10,14 +10,14 @@
 <div class="max-w-5xl mx-auto">
 <div class="bg-white rounded-[24px] border p-6 shadow-sm">
 <div class="flex justify-between flex-wrap gap-3">
-<div><h1 class="font-black text-[22px]"><span class="text-[#D71921]">Unicron</span> - Stock Manager</h1><p class="text-[12px] text-black/60">Daily new serial add + Verify existing/new - Real Firestore - RA2 Wema 0127884170</p></div>
+<div><h1 class="font-black text-[22px]"><span class="text-[#D71921]">Unicron</span> - Stock Manager</h1><p class="text-[12px] text-black/60">Daily new serial add + Verify existing/new </p></div>
 <a href="index.html" class="bg-black text-white px-4 py-2 rounded-full text-[12px] font-bold">Back to App</a>
 </div>
 
 <div class="mt-6 grid md:grid-cols-2 gap-6">
 <div class="bg-[#FFF1ED] border-2 border-red-100 rounded-[20px] p-5">
-<h3 class="font-black text-[14px]">📦 Daily New Serial Add (Vyapar se)</h3>
-<p class="text-[11px] mt-1 text-black/60">Invoice se 13-digit serial paste karo - Auto check Existing/New/Used - Firestore inventorySerials me save</p>
+<h3 class="font-black text-[14px]">📦 add New Serial </h3>
+<p class="text-[11px] mt-1 text-black/60">13-digit serial - Auto check Existing/New/Used </p>
 <div class="mt-4 space-y-3">
 <input id="invoiceNo" placeholder="Invoice No (e.g., 973)" class="w-full border rounded-full px-4 py-2.5 text-[12px]">
 <select id="modelSelect" class="w-full border rounded-full px-4 py-2.5 text-[12px]">
@@ -27,7 +27,7 @@
 <textarea id="serialsInput" placeholder="Paste serials - One per line or comma separated - 13 digits each&#10;e.g.&#10;2604340900039&#10;2604340900040&#10;2604340900041" class="w-full border rounded-[16px] px-4 py-3 text-[12px] font-mono h-[140px]"></textarea>
 <div class="flex gap-2">
 <button onclick="checkSerials()" class="flex-1 bg-white border-2 border-black py-2.5 rounded-full text-[11px] font-black">🔍 Check Existing/New</button>
-<button onclick="importSerials()" class="flex-1 bg-[#D71921] text-white py-2.5 rounded-full text-[11px] font-black">✅ Add New to Firestore</button>
+<button onclick="importSerials()" class="flex-1 bg-[#D71921] text-white py-2.5 rounded-full text-[11px] font-black">✅ </button>
 </div>
 <p id="checkResult" class="text-[11px] mt-2 font-bold"></p>
 </div>
