@@ -10,32 +10,32 @@
 <div class="max-w-5xl mx-auto">
 <div class="bg-white rounded-[24px] border p-6 shadow-sm">
 <div class="flex justify-between flex-wrap gap-3">
-<div><h1 class="font-black text-[22px]"><span class="text-[#D71921]">Unicron</span> - User Manager</h1><p class="text-[12px] text-black/60">Add Store Manager / Admin / Installer - Real Firestore - RA2 Wema 0127884170</p></div>
+<div><h1 class="font-black text-[22px]"><span class="text-[#D71921]">Unicron</span> - User Manager</h1><p class="text-[12px] text-black/60">Add Store Manager / Admin / Installer </p></div>
 <div class="flex gap-2"><a href="admin-stock.html" class="bg-white border px-4 py-2 rounded-full text-[12px] font-bold">Stock Manager</a><a href="index.html" class="bg-black text-white px-4 py-2 rounded-full text-[12px] font-bold">Back to App</a></div>
 </div>
 
 <div class="mt-8 grid md:grid-cols-2 gap-6">
 <div class="bg-[#FFF1ED] border-2 border-red-100 rounded-[20px] p-5">
 <h3 class="font-black text-[14px]">👤 Add New User - Store Manager / Admin</h3>
-<p class="text-[11px] mt-1 text-black/60">Store manager add karo - Serial verify + Installation approve kar sakega - No bank needed</p>
+<p class="text-[11px] mt-1 text-black/60">Store manager add karo - Serial verify + Installation </p>
 <div class="mt-4 space-y-3">
 <select id="roleSelect" class="w-full border-2 border-[#D71921] rounded-full px-4 py-3 text-[12px] font-bold">
-<option value="store_manager">Store Manager (Vyapar verify)</option>
+<option value="store_manager">Store Manager </option>
 <option value="admin">Admin MD (Full access)</option>
-<option value="installer">Installer (Field electrician)</option>
+<option value="installer">Installer </option>
 </select>
 <input id="userName" placeholder="Full Name (e.g., Ramesh Store Manager)" class="w-full border rounded-full px-4 py-2.5 text-[12px]">
 <input id="userPhone" placeholder="Phone - 10 digits (e.g., 8107733460)" class="w-full border rounded-full px-4 py-2.5 text-[12px]" maxlength="10">
 <input id="userEmail" placeholder="Email (for Admin - e.g., store@ra2.com)" class="w-full border rounded-full px-4 py-2.5 text-[12px]">
 <input id="userPassword" placeholder="Password (min 6 chars)" class="w-full border rounded-full px-4 py-2.5 text-[12px]" type="password">
 <input id="userCity" placeholder="City (e.g., Lagos)" class="w-full border rounded-full px-4 py-2.5 text-[12px]" value="Lagos">
-<button onclick="createUser()" class="w-full bg-[#D71921] text-white py-3 rounded-full text-[12px] font-black">✅ Create User Real Firestore</button>
+<button onclick="createUser()" class="w-full bg-[#D71921] text-white py-3 rounded-full text-[12px] font-black">✅ </button>
 <p id="createResult" class="text-[11px] mt-2 font-bold"></p>
 </div>
 </div>
 
 <div class="bg-white border rounded-[20px] p-5">
-<h3 class="font-black text-[14px]">📋 All Users - Real Firestore</h3>
+<h3 class="font-black text-[14px]">📋 All Users </h3>
 <p class="text-[11px] mt-1 text-black/60">Filter by role - Search phone - Total users</p>
 <div class="mt-4 space-y-3">
 <div class="flex gap-2">
@@ -55,7 +55,7 @@
 
 <div class="mt-6 bg-black text-white rounded-[16px] p-4 text-[11px]">
 <p class="font-black">💰 Payout Info - Real</p>
-<p class="mt-1 leading-5">RA2 international limited - A2K Enterprises - Wema Bank 0127884170 - Subaccount RS_9B6B5FF9A0B71815CDF19707E93BDB64  - Store manager cannot withdraw - Only MD admin via admin-withdraw.html</p>
+<p class="mt-1 leading-5">RA2 international limited - Only MD l</p>
 </div>
 </div>
 </div>
@@ -102,7 +102,7 @@ async function loadUsers(){
     document.getElementById('countManager').innerText=d.counts?.store_manager||users.filter(u=>u.role==='store_manager').length||0;
     document.getElementById('countAdmin').innerText=d.counts?.admin||users.filter(u=>u.role==='admin').length||0;
     
-    if(users.length==0){listEl.innerHTML='<p class="text-center py-8 text-black/40">No users found - Real Firestore empty - Create first store manager</p>'; return;}
+    if(users.length==0){listEl.innerHTML='<p class="text-center py-8 text-black/40">No users found - Create first store manager</p>'; return;}
     
     listEl.innerHTML=users.map(u=>`
       <div class="border rounded-[12px] p-3 flex justify-between items-center bg-gray-50">
@@ -115,7 +115,7 @@ async function loadUsers(){
 }
 
 async function deleteUser(id){
-  if(!confirm('Delete user ID '+id+'? Real Firestore - Cannot undo!')) return;
+  if(!confirm('Delete user ID '+id+'? - Cannot undo!')) return;
   try{
     const r=await fetch('/api/admin/delete-user',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
     const d=await r.json();
