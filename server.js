@@ -930,8 +930,8 @@ app.get('/api/admin/withdraw-requests', async (req, res) => {
 });
 // Fallback for PWA - SABSE LAST ME - API ke baad
 app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api/')) return next();
-  res.sendFile(path.join(__dirname, 'index.html'));
+if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'API not found: ' + req.path });
+res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // ==================== START SERVER ====================
